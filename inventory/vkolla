@@ -1,0 +1,15 @@
+[control]
+control01 ansible_host=192.168.17.3 ansible_user=ubuntu ansible_become=yes
+
+[deployment]
+localhost ansible_connection=local
+
+[baremetal:children]
+control
+
+[mariadb:children]
+control
+
+[bifrost:children]
+deployment
+
