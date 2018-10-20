@@ -68,6 +68,37 @@ resources:
         }
       ]
 
+  sg_mysql_client:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: SecGroup to assign to hosts requiring access to MySQL
+      name: mysql-client
+      rules: []
+
+  sg_mysql_server:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Open ports for MySQL
+      name: mysql-server
+      rules: [
+        {
+          "direction": "ingress",
+          "port_range_min": 3306,
+          "port_range_max": 3306,
+          "protocol": "tcp",
+          "remote_mode": "remote_group_id",
+          "remote_group_id": { get_resource: sg_mysql_client }
+        },
+        {
+          "direction": "ingress",
+          "port_range_min": 4567,
+          "port_range_max": 4567,
+          "protocol": "tcp",
+          "remote_mode": "remote_group_id",
+          "remote_group_id": { get_resource: sg_mysql_client }
+        }
+      ]
+
   control_instance:
     type: OS::Nova::Server
     properties:
@@ -76,6 +107,7 @@ resources:
       key_name: { get_param: key }
       security_groups:
         - { get_resource: sg_rabbitmq_server }
+        - { get_resource: sg_mysql_server }
       networks:
         - network: { get_param: main_net }
 
@@ -87,6 +119,7 @@ resources:
       key_name: { get_param: key }
       security_groups:
         - { get_resource: sg_rabbitmq_client }
+        - { get_resource: sg_mysql_client }
       networks:
         - network: { get_param: main_net }
 

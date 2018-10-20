@@ -17,5 +17,8 @@ deployment
 [rabbitmq:children]
 control
 
+[mariadb:children]
+control
+
 [haproxy:children]
 network
