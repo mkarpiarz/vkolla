@@ -20,5 +20,8 @@ control
 [mariadb:children]
 control
 
+[memcached:children]
+control
+
 [haproxy:children]
 network
