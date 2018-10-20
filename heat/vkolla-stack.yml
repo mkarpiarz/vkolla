@@ -17,6 +17,11 @@ parameters:
     label: Control instance flavour
     description: Flavour to use with control instances
     default: m1.medium
+  network_flavour:
+    type: string
+    label: Network instance flavour
+    description: Flavour to use with network instances
+    default: m1.medium
   client_flavour:
     type: string
     label: Client instance flavour
@@ -111,6 +116,27 @@ resources:
       networks:
         - network: { get_param: main_net }
 
+  # TODO: Use `allowed_address_pairs` instead of disabling port security.
+  # TODO: Allow access to HAProxy stats.
+  network_instance:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: network_flavour }
+      key_name: { get_param: key }
+      security_groups:
+        - { get_resource: sg_rabbitmq_server }
+        - { get_resource: sg_rabbitmq_client }
+        - { get_resource: sg_mysql_server }
+        - { get_resource: sg_mysql_client }
+      networks: [{
+          network: { get_param: main_net },
+          port_extra_properties: {
+            port_security_enabled: false
+          }
+        }
+      ]
+
   test_client:
     type: OS::Nova::Server
     properties:
@@ -122,4 +148,3 @@ resources:
         - { get_resource: sg_mysql_client }
       networks:
         - network: { get_param: main_net }
-
