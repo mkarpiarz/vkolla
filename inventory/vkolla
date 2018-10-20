@@ -1,11 +1,15 @@
 [control]
 control01 ansible_host=192.168.17.3 ansible_user=ubuntu ansible_become=yes
 
+[network]
+network01 ansible_host=192.168.17.5 ansible_user=ubuntu ansible_become=yes
+
 [deployment]
 localhost ansible_connection=local ansible_become=no
 
 [baremetal:children]
 control
+network
 
 [bifrost:children]
 deployment
@@ -13,5 +17,5 @@ deployment
 [rabbitmq:children]
 control
 
-[outward-rabbitmq:children]
-control
+[haproxy:children]
+network
