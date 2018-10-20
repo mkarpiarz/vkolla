@@ -1,0 +1,92 @@
+heat_template_version: 2017-09-01
+
+description: Multinode OpenStack deployment with Kolla and vScaller
+
+parameters:
+  image:
+    type: string
+    label: Instance image
+    description: Image to use for instances
+    default: Ubuntu-16.04-LTS
+  key:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for access to instances
+  control_flavour:
+    type: string
+    label: Control instance flavour
+    description: Flavour to use with control instances
+    default: m1.medium
+  client_flavour:
+    type: string
+    label: Client instance flavour
+    description: Flavour to use with client instances
+    default: m1.small
+  main_net:
+    type: string
+    label: Main network
+    description: Main internal network
+    default: private
+
+resources:
+  sg_rabbitmq_client:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: SecGroup to assign to hosts requiring access to RabbitMQ
+      name: rabbitmq-client
+      rules: []
+
+  sg_rabbitmq_server:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Open ports for RabbitMQ
+      name: rabbitmq-server
+      rules: [
+        {
+          "direction": "ingress",
+          "port_range_min": 5672,
+          "port_range_max": 5672,
+          "protocol": "tcp",
+          "remote_mode": "remote_group_id",
+          "remote_group_id": { get_resource: sg_rabbitmq_client }
+        },
+        {
+          "direction": "ingress",
+          "port_range_min": 15672,
+          "port_range_max": 15672,
+          "protocol": "tcp",
+          "remote_mode": "remote_group_id",
+          "remote_group_id": { get_resource: sg_rabbitmq_client }
+        },
+        {
+          "direction": "ingress",
+          "port_range_min": 25672,
+          "port_range_max": 25672,
+          "protocol": "tcp",
+          "remote_mode": "remote_group_id",
+          "remote_group_id": { get_resource: sg_rabbitmq_client }
+        }
+      ]
+
+  control_instance:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: control_flavour }
+      key_name: { get_param: key }
+      security_groups:
+        - { get_resource: sg_rabbitmq_server }
+      networks:
+        - network: { get_param: main_net }
+
+  test_client:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: client_flavour }
+      key_name: { get_param: key }
+      security_groups:
+        - { get_resource: sg_rabbitmq_client }
+      networks:
+        - network: { get_param: main_net }
+
