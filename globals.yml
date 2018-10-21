@@ -157,7 +157,7 @@ enable_keystone: "yes"
 #enable_glance: "yes"
 enable_glance: "yes"
 #enable_neutron: "yes"
-enable_neutron: "no"
+enable_neutron: "yes"
 #enable_nova: "yes"
 enable_nova: "no"
 

@@ -22,6 +22,11 @@ parameters:
     label: Network instance flavour
     description: Flavour to use with network instances
     default: m1.medium
+  compute_flavour:
+    type: string
+    label: Compute instance flavour
+    description: Flavour to use with compute instances
+    default: m1.large
   client_flavour:
     type: string
     label: Client instance flavour
@@ -208,6 +213,17 @@ resources:
           }
         }
       ]
+
+  compute_instance:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: compute_flavour }
+      key_name: { get_param: key }
+      security_groups:
+        - { get_resource: os_services_api_client }
+      networks:
+        - network: { get_param: main_net }
 
   test_client:
     type: OS::Nova::Server
