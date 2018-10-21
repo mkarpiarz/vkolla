@@ -121,6 +121,40 @@ resources:
       protocol: tcp
       remote_group: { get_resource: os_services_infra_client }
 
+  os_services_api_client:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Assign to hosts requiring access to OpenStack APIs
+      name: os-services-api-client
+      rules: []
+
+  os_services_api_server:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Open ports for OpenStack APIs
+      name: os-services-api-server
+
+  keystone_public_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_api_server }
+      description: Keystone public endpoint
+      direction: ingress
+      port_range_min: 5000
+      port_range_max: 5000
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+  keystone_admin_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_api_server }
+      description: Keystone admin endpoint
+      direction: ingress
+      port_range_min: 35357
+      port_range_max: 35357
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+
   control_instance:
     type: OS::Nova::Server
     properties:
@@ -129,6 +163,7 @@ resources:
       key_name: { get_param: key }
       security_groups:
         - { get_resource: os_services_infra_server }
+        - { get_resource: os_services_api_server }
       networks:
         - network: { get_param: main_net }
 
@@ -143,6 +178,8 @@ resources:
       security_groups:
         - { get_resource: os_services_infra_server }
         - { get_resource: os_services_infra_client }
+        - { get_resource: os_services_api_server }
+        - { get_resource: os_services_api_client }
       networks: [{
           network: { get_param: main_net },
           port_extra_properties: {
@@ -159,5 +196,6 @@ resources:
       key_name: { get_param: key }
       security_groups:
         - { get_resource: os_services_infra_client }
+        - { get_resource: os_services_api_client }
       networks:
         - network: { get_param: main_net }
