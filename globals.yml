@@ -104,7 +104,7 @@ neutron_external_interface: "ens4"
 
 # Valid options are [ openvswitch, linuxbridge, vmware_nsxv, vmware_dvs, opendaylight ]
 #neutron_plugin_agent: "openvswitch"
-neutron_plugin_agent: "linuxbridge"
+neutron_plugin_agent: "openvswitch"
 
 
 ####################

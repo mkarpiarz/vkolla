@@ -45,6 +45,11 @@ glance
 [neutron:children]
 network
 
+# Required for `neutron_plugin_agent: "openvswitch"`
+[openvswitch:children]
+network
+compute
+
 [neutron-server:children]
 control
 
