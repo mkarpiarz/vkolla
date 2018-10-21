@@ -34,75 +34,70 @@ parameters:
     default: private
 
 resources:
-  sg_rabbitmq_client:
+  os_services_infra_client:
     type: OS::Neutron::SecurityGroup
     properties:
-      description: SecGroup to assign to hosts requiring access to RabbitMQ
-      name: rabbitmq-client
+      description: SecGroup to assign to hosts requiring access to infrastructure services
+      name: os-services-infra-client
       rules: []
 
-  sg_rabbitmq_server:
+  os_services_infra_server:
     type: OS::Neutron::SecurityGroup
     properties:
-      description: Open ports for RabbitMQ
-      name: rabbitmq-server
-      rules: [
-        {
-          "direction": "ingress",
-          "port_range_min": 5672,
-          "port_range_max": 5672,
-          "protocol": "tcp",
-          "remote_mode": "remote_group_id",
-          "remote_group_id": { get_resource: sg_rabbitmq_client }
-        },
-        {
-          "direction": "ingress",
-          "port_range_min": 15672,
-          "port_range_max": 15672,
-          "protocol": "tcp",
-          "remote_mode": "remote_group_id",
-          "remote_group_id": { get_resource: sg_rabbitmq_client }
-        },
-        {
-          "direction": "ingress",
-          "port_range_min": 25672,
-          "port_range_max": 25672,
-          "protocol": "tcp",
-          "remote_mode": "remote_group_id",
-          "remote_group_id": { get_resource: sg_rabbitmq_client }
-        }
-      ]
+      description: Open ports for infrastructure services
+      name: os-services-infra-server
 
-  sg_mysql_client:
-    type: OS::Neutron::SecurityGroup
+  rabbitmq_main_port:
+    type: OS::Neutron::SecurityGroupRule
     properties:
-      description: SecGroup to assign to hosts requiring access to MySQL
-      name: mysql-client
-      rules: []
+      security_group: { get_resource: os_services_infra_server }
+      description: RabbitMQ main port
+      direction: ingress
+      port_range_min: 5672
+      port_range_max: 5672
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+  rabbitmq_mgmt_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: RabbitMQ Management console
+      direction: ingress
+      port_range_min: 15672
+      port_range_max: 15672
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+  rabbitmq_cluster_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: RabbitMQ cluster
+      direction: ingress
+      port_range_min: 25672
+      port_range_max: 25672
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
 
-  sg_mysql_server:
-    type: OS::Neutron::SecurityGroup
+  mysql_main_port:
+    type: OS::Neutron::SecurityGroupRule
     properties:
-      description: Open ports for MySQL
-      name: mysql-server
-      rules: [
-        {
-          "direction": "ingress",
-          "port_range_min": 3306,
-          "port_range_max": 3306,
-          "protocol": "tcp",
-          "remote_mode": "remote_group_id",
-          "remote_group_id": { get_resource: sg_mysql_client }
-        },
-        {
-          "direction": "ingress",
-          "port_range_min": 4567,
-          "port_range_max": 4567,
-          "protocol": "tcp",
-          "remote_mode": "remote_group_id",
-          "remote_group_id": { get_resource: sg_mysql_client }
-        }
-      ]
+      security_group: { get_resource: os_services_infra_server }
+      description: MySQL/MariaDB main port
+      direction: ingress
+      port_range_min: 3306
+      port_range_max: 3306
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+  mysql_repl_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: MySQL/MariaDB replication port (Galera)
+      direction: ingress
+      port_range_min: 4567
+      port_range_max: 4567
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
 
   control_instance:
     type: OS::Nova::Server
@@ -111,8 +106,7 @@ resources:
       flavor: { get_param: control_flavour }
       key_name: { get_param: key }
       security_groups:
-        - { get_resource: sg_rabbitmq_server }
-        - { get_resource: sg_mysql_server }
+        - { get_resource: os_services_infra_server }
       networks:
         - network: { get_param: main_net }
 
@@ -125,10 +119,8 @@ resources:
       flavor: { get_param: network_flavour }
       key_name: { get_param: key }
       security_groups:
-        - { get_resource: sg_rabbitmq_server }
-        - { get_resource: sg_rabbitmq_client }
-        - { get_resource: sg_mysql_server }
-        - { get_resource: sg_mysql_client }
+        - { get_resource: os_services_infra_server }
+        - { get_resource: os_services_infra_client }
       networks: [{
           network: { get_param: main_net },
           port_extra_properties: {
@@ -144,7 +136,6 @@ resources:
       flavor: { get_param: client_flavour }
       key_name: { get_param: key }
       security_groups:
-        - { get_resource: sg_rabbitmq_client }
-        - { get_resource: sg_mysql_client }
+        - { get_resource: os_services_infra_client }
       networks:
         - network: { get_param: main_net }
