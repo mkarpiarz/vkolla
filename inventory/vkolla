@@ -4,8 +4,18 @@ control01 ansible_host=192.168.17.3 ansible_user=ubuntu ansible_become=yes
 [network]
 network01 ansible_host=192.168.17.5 ansible_user=ubuntu ansible_become=yes
 
-[compute]
+# inner-compute is the groups of compute nodes which do not have
+# external reachability
+[inner-compute]
+
+# external-compute is the groups of compute nodes which can reach
+# outside
+[external-compute]
 compute01 ansible_host=192.168.17.9 ansible_user=ubuntu ansible_become=yes
+
+[compute:children]
+inner-compute
+external-compute
 
 [deployment]
 localhost ansible_connection=local ansible_become=no
@@ -69,3 +79,35 @@ neutron
 [neutron-vpnaas-agent:children]
 
 [neutron-bgp-dragent:children]
+
+[nova:children]
+control
+
+[nova-api:children]
+nova
+
+[nova-conductor:children]
+nova
+
+[nova-consoleauth:children]
+nova
+
+[nova-novncproxy:children]
+nova
+
+[nova-scheduler:children]
+nova
+
+# Unused groups required by config directory creators
+[nova-spicehtml5proxy:children]
+
+[nova-compute-ironic:children]
+
+[nova-serialproxy:children]
+
+# Placement - required by nova
+[placement:children]
+control
+
+[placement-api:children]
+placement

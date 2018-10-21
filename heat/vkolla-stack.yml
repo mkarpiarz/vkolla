@@ -192,6 +192,37 @@ resources:
       protocol: tcp
       remote_group: { get_resource: os_services_api_client }
 
+  nova_api_and_metadata_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_api_server }
+      description: Nova API and Nova metadata
+      direction: ingress
+      port_range_min: 8774
+      port_range_max: 8775
+      protocol: tcp
+      remote_group: { get_resource: os_services_api_client }
+  placement_api_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_api_server }
+      description: Placement API
+      direction: ingress
+      port_range_min: 8780
+      port_range_max: 8780
+      protocol: tcp
+      remote_group: { get_resource: os_services_api_client }
+  nova_novncproxy_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_api_server }
+      description: Nova novncproxy
+      direction: ingress
+      port_range_min: 6080
+      port_range_max: 6080
+      protocol: tcp
+      remote_group: { get_resource: os_services_api_client }
+
   control_instance:
     type: OS::Nova::Server
     properties:
