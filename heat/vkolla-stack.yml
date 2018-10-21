@@ -181,6 +181,17 @@ resources:
       protocol: tcp
       remote_group: { get_resource: os_services_infra_client }
 
+  neutron_server_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_api_server }
+      description: Neutron server API
+      direction: ingress
+      port_range_min: 9696
+      port_range_max: 9696
+      protocol: tcp
+      remote_group: { get_resource: os_services_api_client }
+
   control_instance:
     type: OS::Nova::Server
     properties:
