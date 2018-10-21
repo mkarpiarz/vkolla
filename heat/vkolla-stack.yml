@@ -148,7 +148,7 @@ resources:
       port_range_min: 5000
       port_range_max: 5000
       protocol: tcp
-      remote_group: { get_resource: os_services_infra_client }
+      remote_group: { get_resource: os_services_api_client }
   keystone_admin_port:
     type: OS::Neutron::SecurityGroupRule
     properties:
@@ -158,7 +158,7 @@ resources:
       port_range_min: 35357
       port_range_max: 35357
       protocol: tcp
-      remote_group: { get_resource: os_services_infra_client }
+      remote_group: { get_resource: os_services_api_client }
 
   glance_api_port:
     type: OS::Neutron::SecurityGroupRule
@@ -169,7 +169,7 @@ resources:
       port_range_min: 9292
       port_range_max: 9292
       protocol: tcp
-      remote_group: { get_resource: os_services_infra_client }
+      remote_group: { get_resource: os_services_api_client }
   glance_registry_port:
     type: OS::Neutron::SecurityGroupRule
     properties:
@@ -179,7 +179,7 @@ resources:
       port_range_min: 9191
       port_range_max: 9191
       protocol: tcp
-      remote_group: { get_resource: os_services_infra_client }
+      remote_group: { get_resource: os_services_api_client }
 
   neutron_server_port:
     type: OS::Neutron::SecurityGroupRule
