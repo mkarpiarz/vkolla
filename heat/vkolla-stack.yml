@@ -99,6 +99,28 @@ resources:
       protocol: tcp
       remote_group: { get_resource: os_services_infra_client }
 
+  memcached_main_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: Memcached main port
+      direction: ingress
+      port_range_min: 11211
+      port_range_max: 11211
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+
+  haproxy_stats_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: HAProxy statistics report
+      direction: ingress
+      port_range_min: 1984
+      port_range_max: 1984
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+
   control_instance:
     type: OS::Nova::Server
     properties:
