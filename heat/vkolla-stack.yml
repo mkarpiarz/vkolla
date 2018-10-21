@@ -155,6 +155,27 @@ resources:
       protocol: tcp
       remote_group: { get_resource: os_services_infra_client }
 
+  glance_api_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_api_server }
+      description: Glance API
+      direction: ingress
+      port_range_min: 9292
+      port_range_max: 9292
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+  glance_registry_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_api_server }
+      description: Glance registry
+      direction: ingress
+      port_range_min: 9191
+      port_range_max: 9191
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+
   control_instance:
     type: OS::Nova::Server
     properties:

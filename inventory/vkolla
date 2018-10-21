@@ -28,3 +28,12 @@ network
 
 [keystone:children]
 control
+
+[glance:children]
+control
+
+[glance-api:children]
+glance
+
+[glance-registry:children]
+glance
