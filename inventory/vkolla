@@ -25,3 +25,6 @@ control
 
 [haproxy:children]
 network
+
+[keystone:children]
+control
