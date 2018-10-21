@@ -221,6 +221,7 @@ resources:
       flavor: { get_param: compute_flavour }
       key_name: { get_param: key }
       security_groups:
+        - { get_resource: os_services_infra_client }
         - { get_resource: os_services_api_client }
       networks:
         - network: { get_param: main_net }
