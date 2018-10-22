@@ -1,6 +1,6 @@
 heat_template_version: 2017-09-01
 
-description: Multinode OpenStack deployment with Kolla and vScaller
+description: Multinode OpenStack deployment with Kolla and vScaler
 
 parameters:
   image:
