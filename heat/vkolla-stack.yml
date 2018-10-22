@@ -223,50 +223,62 @@ resources:
       protocol: tcp
       remote_group: { get_resource: os_services_api_client }
 
-  control_instance:
-    type: OS::Nova::Server
+  control_instances:
+    type: OS::Heat::ResourceGroup
     properties:
-      image: { get_param: image }
-      flavor: { get_param: control_flavour }
-      key_name: { get_param: key }
-      security_groups:
-        - { get_resource: os_services_infra_server }
-        - { get_resource: os_services_api_server }
-      networks:
-        - network: { get_param: main_net }
+      count: 1
+      resource_def:
+        type: OS::Nova::Server
+        properties:
+          image: { get_param: image }
+          flavor: { get_param: control_flavour }
+          key_name: { get_param: key }
+          security_groups:
+            - { get_resource: os_services_infra_server }
+            - { get_resource: os_services_api_server }
+          networks:
+            - network: { get_param: main_net }
 
   # TODO: Use `allowed_address_pairs` instead of disabling port security.
   # TODO: Allow access to HAProxy stats.
-  network_instance:
-    type: OS::Nova::Server
+  network_instances:
+    type: OS::Heat::ResourceGroup
     properties:
-      image: { get_param: image }
-      flavor: { get_param: network_flavour }
-      key_name: { get_param: key }
-      security_groups:
-        - { get_resource: os_services_infra_server }
-        - { get_resource: os_services_infra_client }
-        - { get_resource: os_services_api_server }
-        - { get_resource: os_services_api_client }
-      networks: [{
-          network: { get_param: main_net },
-          port_extra_properties: {
-            port_security_enabled: false
-          }
-        }
-      ]
+      count: 1
+      resource_def:
+        type: OS::Nova::Server
+        properties:
+          image: { get_param: image }
+          flavor: { get_param: network_flavour }
+          key_name: { get_param: key }
+          security_groups:
+            - { get_resource: os_services_infra_server }
+            - { get_resource: os_services_infra_client }
+            - { get_resource: os_services_api_server }
+            - { get_resource: os_services_api_client }
+          networks: [{
+              network: { get_param: main_net },
+              port_extra_properties: {
+                port_security_enabled: false
+              }
+            }
+          ]
 
-  compute_instance:
-    type: OS::Nova::Server
+  compute_instances:
+    type: OS::Heat::ResourceGroup
     properties:
-      image: { get_param: image }
-      flavor: { get_param: compute_flavour }
-      key_name: { get_param: key }
-      security_groups:
-        - { get_resource: os_services_infra_client }
-        - { get_resource: os_services_api_client }
-      networks:
-        - network: { get_param: main_net }
+      count: 1
+      resource_def:
+        type: OS::Nova::Server
+        properties:
+          image: { get_param: image }
+          flavor: { get_param: compute_flavour }
+          key_name: { get_param: key }
+          security_groups:
+            - { get_resource: os_services_infra_client }
+            - { get_resource: os_services_api_client }
+          networks:
+            - network: { get_param: main_net }
 
   test_client:
     type: OS::Nova::Server
