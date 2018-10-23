@@ -337,6 +337,7 @@ resources:
             - { get_resource: os_services_api_server }
           networks:
             - network: { get_resource: main_net }
+            - network: { get_resource: tunnel_net }
 
   # TODO: Use `allowed_address_pairs` instead of disabling port security.
   # TODO: Allow access to HAProxy stats.
