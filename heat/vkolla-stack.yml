@@ -32,11 +32,16 @@ parameters:
     label: Client instance flavour
     description: Flavour to use with client instances
     default: m1.small
-  main_net:
+  external_network:
     type: string
-    label: Main network
-    description: Main internal network
-    default: private
+    label: External network name or ID
+    description: External network with floating IP addresses.
+    default: public1
+  main_net_cidr:
+    type: string
+    label: main net CIDR
+    description: CIDR of the main network
+    default: 192.168.17.0/24
 
 resources:
   os_services_infra_client:
@@ -223,6 +228,34 @@ resources:
       protocol: tcp
       remote_group: { get_resource: os_services_api_client }
 
+# Networks and routers
+  main_net:
+    type: OS::Neutron::Net
+    properties:
+      name: main_net
+
+  main_net_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: main_net_subnet
+      network_id: { get_resource: main_net }
+      cidr: { get_param: main_net_cidr }
+      dns_nameservers: [ 8.8.8.8 ]
+      enable_dhcp: true
+
+  main_router:
+    type: OS::Neutron::Router
+    properties:
+      name: main_router
+      external_gateway_info:
+        network: { get_param: external_network }
+
+  main_net_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: main_router }
+      subnet: { get_resource: main_net_subnet }
+
   control_instances:
     type: OS::Heat::ResourceGroup
     properties:
@@ -237,7 +270,7 @@ resources:
             - { get_resource: os_services_infra_server }
             - { get_resource: os_services_api_server }
           networks:
-            - network: { get_param: main_net }
+            - network: { get_resource: main_net }
 
   # TODO: Use `allowed_address_pairs` instead of disabling port security.
   # TODO: Allow access to HAProxy stats.
@@ -257,7 +290,7 @@ resources:
             - { get_resource: os_services_api_server }
             - { get_resource: os_services_api_client }
           networks: [{
-              network: { get_param: main_net },
+              network: { get_resource: main_net },
               port_extra_properties: {
                 port_security_enabled: false
               }
@@ -278,7 +311,7 @@ resources:
             - { get_resource: os_services_infra_client }
             - { get_resource: os_services_api_client }
           networks:
-            - network: { get_param: main_net }
+            - network: { get_resource: main_net }
 
   test_client:
     type: OS::Nova::Server
@@ -290,4 +323,4 @@ resources:
         - { get_resource: os_services_infra_client }
         - { get_resource: os_services_api_client }
       networks:
-        - network: { get_param: main_net }
+        - network: { get_resource: main_net }
