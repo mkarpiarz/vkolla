@@ -1,0 +1,12 @@
+parameters:
+  image: CirrOS
+  key: mykey
+  control_flavour: m1.tiny
+  network_flavour: m1.tiny
+  compute_flavour: m1.tiny
+  client_flavour: m1.tiny
+  external_network: external
+  main_net_cidr: 192.168.1.0/24
+  tunnel_net_cidr: 192.168.2.0/24
+  provider_net_cidr: 192.168.3.0/24
+  vip_net_cidr: 192.168.10.0/24
