@@ -42,6 +42,11 @@ parameters:
     label: main net CIDR
     description: CIDR of the main network
     default: 192.168.17.0/24
+  vip_net_cidr:
+    type: string
+    label: vip net CIDR
+    description: CIDR of the VIP network
+    default: 10.10.10.0/24
 
 resources:
   os_services_infra_client:
@@ -243,6 +248,19 @@ resources:
       dns_nameservers: [ 8.8.8.8 ]
       enable_dhcp: true
 
+  vip_net:
+    type: OS::Neutron::Net
+    properties:
+      name: vip_net
+
+  vip_net_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: vip_net_subnet
+      network_id: { get_resource: vip_net }
+      cidr: { get_param: vip_net_cidr }
+      enable_dhcp: false
+
   main_router:
     type: OS::Neutron::Router
     properties:
@@ -255,6 +273,12 @@ resources:
     properties:
       router_id: { get_resource: main_router }
       subnet: { get_resource: main_net_subnet }
+
+  vip_net_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: main_router }
+      subnet: { get_resource: vip_net_subnet }
 
   control_instances:
     type: OS::Heat::ResourceGroup
@@ -289,13 +313,11 @@ resources:
             - { get_resource: os_services_infra_client }
             - { get_resource: os_services_api_server }
             - { get_resource: os_services_api_client }
-          networks: [{
-              network: { get_resource: main_net },
-              port_extra_properties: {
+          networks:
+            - network: { get_resource: main_net }
+            - network: { get_resource: vip_net }
+              port_extra_properties:
                 port_security_enabled: false
-              }
-            }
-          ]
 
   compute_instances:
     type: OS::Heat::ResourceGroup
