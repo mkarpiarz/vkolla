@@ -42,6 +42,16 @@ parameters:
     label: main net CIDR
     description: CIDR of the main network
     default: 192.168.17.0/24
+  tunnel_net_cidr:
+    type: string
+    label: tunnel net CIDR
+    description: CIDR of the tunnel network
+    default: 172.16.0.0/24
+  provider_net_cidr:
+    type: string
+    label: provider net CIDR
+    description: CIDR of the provider network
+    default: 172.18.0.0/24
   vip_net_cidr:
     type: string
     label: vip net CIDR
@@ -248,6 +258,32 @@ resources:
       dns_nameservers: [ 8.8.8.8 ]
       enable_dhcp: true
 
+  tunnel_net:
+    type: OS::Neutron::Net
+    properties:
+      name: tunnel_net
+
+  tunnel_net_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: tunnel_net_subnet
+      network_id: { get_resource: tunnel_net }
+      cidr: { get_param: tunnel_net_cidr }
+      enable_dhcp: true
+
+  provider_net:
+    type: OS::Neutron::Net
+    properties:
+      name: provider_net
+
+  provider_net_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: provider_net_subnet
+      network_id: { get_resource: provider_net }
+      cidr: { get_param: provider_net_cidr }
+      enable_dhcp: false
+
   vip_net:
     type: OS::Neutron::Net
     properties:
@@ -279,6 +315,12 @@ resources:
     properties:
       router_id: { get_resource: main_router }
       subnet: { get_resource: vip_net_subnet }
+
+  provider_net_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: main_router }
+      subnet: { get_resource: provider_net_subnet }
 
   control_instances:
     type: OS::Heat::ResourceGroup
@@ -315,6 +357,8 @@ resources:
             - { get_resource: os_services_api_client }
           networks:
             - network: { get_resource: main_net }
+            - network: { get_resource: tunnel_net }
+            - network: { get_resource: provider_net }
             - network: { get_resource: vip_net }
               port_extra_properties:
                 port_security_enabled: false
@@ -334,6 +378,7 @@ resources:
             - { get_resource: os_services_api_client }
           networks:
             - network: { get_resource: main_net }
+            - network: { get_resource: tunnel_net }
 
   test_client:
     type: OS::Nova::Server
