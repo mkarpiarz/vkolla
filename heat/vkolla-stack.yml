@@ -360,6 +360,8 @@ resources:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
             - network: { get_resource: provider_net }
+              port_extra_properties:
+                port_security_enabled: false
             - network: { get_resource: vip_net }
               port_extra_properties:
                 port_security_enabled: false
