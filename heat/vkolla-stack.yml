@@ -338,6 +338,8 @@ resources:
           networks:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
+          metadata:
+            groups: control
 
   # TODO: Use `allowed_address_pairs` instead of disabling port security.
   # TODO: Allow access to HAProxy stats.
@@ -365,6 +367,8 @@ resources:
             - network: { get_resource: vip_net }
               port_extra_properties:
                 port_security_enabled: false
+          metadata:
+            groups: network
 
   compute_instances:
     type: OS::Heat::ResourceGroup
@@ -382,6 +386,8 @@ resources:
           networks:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
+          metadata:
+            groups: compute
 
   test_client:
     type: OS::Nova::Server
