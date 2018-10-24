@@ -329,6 +329,7 @@ resources:
       resource_def:
         type: OS::Nova::Server
         properties:
+          name: control%index%
           image: { get_param: image }
           flavor: { get_param: control_flavour }
           key_name: { get_param: key }
@@ -350,6 +351,7 @@ resources:
       resource_def:
         type: OS::Nova::Server
         properties:
+          name: network%index%
           image: { get_param: image }
           flavor: { get_param: network_flavour }
           key_name: { get_param: key }
@@ -377,6 +379,7 @@ resources:
       resource_def:
         type: OS::Nova::Server
         properties:
+          name: compute%index%
           image: { get_param: image }
           flavor: { get_param: compute_flavour }
           key_name: { get_param: key }
@@ -392,6 +395,7 @@ resources:
   test_client:
     type: OS::Nova::Server
     properties:
+      name: test_client
       image: { get_param: image }
       flavor: { get_param: client_flavour }
       key_name: { get_param: key }
