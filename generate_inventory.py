@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from keystoneclient import client as keystone_client
@@ -38,14 +39,30 @@ class Servers(object):
     def get_servers(self):
         return self.client.servers.list(detailed=True)
 
+    @staticmethod
+    def get_all_ips_of(server):
+        all_addresses = server.addresses
+        ips = [all_addresses[addr][0].get('addr') for addr in all_addresses]
+        return sorted(ips)
+
 
 def main():
     creds = Credentials()
     servers = Servers(creds)
+    inventory = defaultdict(list)
     for server in servers.get_servers():
-        print(server.name)
-        print(server.addresses)
-        print(server.metadata)
+        metadata = server.metadata
+        if metadata:
+            try:
+                name = server.name
+                ips = servers.get_all_ips_of(server)
+                groups = metadata.get('groups').split(',')
+                for group in groups:
+                    inventory[group].append((name, ips))
+            except Exception as e:
+                print('WARNING: Got exception for {}: {}'.format(name, e))
+                pass
+    print(inventory)
 
 
 if __name__ == "__main__":
