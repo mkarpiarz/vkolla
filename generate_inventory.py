@@ -1,4 +1,5 @@
 import os
+import sys
 from collections import defaultdict
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
@@ -40,7 +41,13 @@ class Servers(object):
         return self.client.servers.list(detailed=True)
 
 
-def main():
+def main(argv):
+    if len(argv) < 2:
+        sys.stderr.write('Usage: ' + sys.argv[0] + ' <output>\n')
+        sys.stderr.write('<output> - file to write inventory to\n')
+        return 1
+    inv_filename = argv[1]
+
     creds = Credentials()
     servers = Servers(creds)
     networks = defaultdict(int)
@@ -76,7 +83,7 @@ def main():
 
     try:
         # inventory file
-        inv_out = open('myinv', 'w')
+        inv_out = open(inv_filename, 'w')
     except Exception as e:
         print(e)
 
@@ -112,4 +119,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main(sys.argv))
