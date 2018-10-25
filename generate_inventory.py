@@ -39,18 +39,16 @@ class Servers(object):
     def get_servers(self):
         return self.client.servers.list(detailed=True)
 
-    @staticmethod
-    def get_all_ips_of(server):
-        all_addresses = server.addresses
-        ips = [all_addresses[addr][0].get('addr') for addr in all_addresses]
-        return sorted(ips)
-
 
 def main():
     creds = Credentials()
     servers = Servers(creds)
     networks = defaultdict(int)
-    inventory = defaultdict(list)
+    # host groupings
+    groupings = defaultdict(list)
+    # name of the tag used for grouping
+    group_tag = 'groups'
+
     for server in servers.get_servers():
         metadata = server.metadata
         if metadata:
@@ -58,10 +56,12 @@ def main():
                 for net in server.addresses.keys():
                     networks[net] += 1
                 name = server.name
-                ips = servers.get_all_ips_of(server)
-                groups = metadata.get('groups').split(',')
-                for group in groups:
-                    inventory[group].append((name, ips))
+
+                # Assigns servers to groups based on comma separated values
+                # of the `group_tag` metadata tag
+                if group_tag in metadata:
+                    for group in metadata.get(group_tag).split(','):
+                        groupings[group].append(server)
             except Exception as e:
                 print('WARNING: Got exception for {}: {}'.format(name, e))
                 pass
@@ -70,8 +70,9 @@ def main():
     print(hist_nets)
     # First element of the first tuple on the list
     # (most instances are connected to this network)
-    print('most common network: ' + hist_nets[0][0])
-    print(inventory)
+    common_net = hist_nets[0][0]
+    print('most common network: ' + common_net)
+    print(groupings)
 
 
 if __name__ == "__main__":
