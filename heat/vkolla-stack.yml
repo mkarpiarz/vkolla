@@ -57,6 +57,16 @@ parameters:
     label: vip net CIDR
     description: CIDR of the VIP network
     default: 10.10.10.0/24
+  internal_vip:
+    type: string
+    label: Internal VIP
+    description: Internal load balancing VIP
+    default: 192.168.17.254
+  external_vip:
+    type: string
+    label: External VIP
+    description: External load balancing VIP
+    default: 10.10.10.254
 
 resources:
   os_services_infra_client:
@@ -339,7 +349,6 @@ resources:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
 
-  # TODO: Use `allowed_address_pairs` instead of disabling port security.
   # TODO: Allow access to HAProxy stats.
   network_instances:
     type: OS::Heat::ResourceGroup
@@ -357,14 +366,19 @@ resources:
             - { get_resource: os_services_api_server }
             - { get_resource: os_services_api_client }
           networks:
-            - network: { get_resource: main_net }
+            - subnet: { get_resource: main_net_subnet }
+              port_extra_properties:
+                allowed_address_pairs:
+                - ip_address: { get_param: internal_vip }
             - network: { get_resource: tunnel_net }
-            - network: { get_resource: provider_net }
+            - subnet: { get_resource: provider_net_subnet }
               port_extra_properties:
-                port_security_enabled: false
-            - network: { get_resource: vip_net }
+                allowed_address_pairs:
+                - ip_address: { get_param: provider_net_cidr }
+            - subnet: { get_resource: vip_net_subnet }
               port_extra_properties:
-                port_security_enabled: false
+                allowed_address_pairs:
+                - ip_address: { get_param: external_vip }
 
   compute_instances:
     type: OS::Heat::ResourceGroup
