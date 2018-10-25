@@ -74,6 +74,42 @@ def main():
     print('most common network: ' + common_net)
     print(groupings)
 
+    try:
+        # inventory file
+        inv_out = open('myinv', 'w')
+    except Exception as e:
+        print(e)
+
+    print('== INVENTORY ==')
+    for (group_name, servers) in groupings.items():
+        print('[' + group_name + ']')
+        inv_out.write('[' + group_name + ']\n')
+        for server in servers:
+            try:
+                '''
+                The data structure holding the IPs looks like this:
+                'addresses': {
+                  'net0': [{ ... 'addr': 'x.x.x.x', ... }],
+                  'net1': [{ ... 'addr': 'y.y.y.y', ... }],
+                  ...
+                }
+                '''
+                ip = server.addresses.get(common_net)[0].get('addr')
+
+                line = '{} ansible_host={} ' \
+                       'ansible_user=ubuntu ansible_become=yes' \
+                       .format(server.name, ip)
+                print(line)
+                inv_out.write(line)
+            except Exception as e:
+                print('WARNING: Got exception: {}. Skipping {}'
+                      .format(e, server.name))
+                pass
+        # empty line after each grouping
+        print('')
+        inv_out.write('\n')
+    inv_out.close()
+
 
 if __name__ == "__main__":
     main()
