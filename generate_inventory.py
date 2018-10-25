@@ -49,11 +49,14 @@ class Servers(object):
 def main():
     creds = Credentials()
     servers = Servers(creds)
+    networks = defaultdict(int)
     inventory = defaultdict(list)
     for server in servers.get_servers():
         metadata = server.metadata
         if metadata:
             try:
+                for net in server.addresses.keys():
+                    networks[net] += 1
                 name = server.name
                 ips = servers.get_all_ips_of(server)
                 groups = metadata.get('groups').split(',')
@@ -62,6 +65,12 @@ def main():
             except Exception as e:
                 print('WARNING: Got exception for {}: {}'.format(name, e))
                 pass
+    # Sort (in descending order) the network counter by its values
+    hist_nets = sorted(networks.items(), key=lambda x: x[1], reverse=True)
+    print(hist_nets)
+    # First element of the first tuple on the list
+    # (most instances are connected to this network)
+    print('most common network: ' + hist_nets[0][0])
     print(inventory)
 
 
