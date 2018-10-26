@@ -12,3 +12,6 @@ network01 ansible_host=192.168.17.5 ansible_user=ubuntu ansible_become=yes
 # outside
 [external-compute]
 compute01 ansible_host=192.168.17.9 ansible_user=ubuntu ansible_become=yes
+
+[storage]
+storage01 ansible_host=192.168.17.8 ansible_user=ubuntu ansible_become=yes

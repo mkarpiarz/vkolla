@@ -93,3 +93,19 @@ control
 
 [placement-api:children]
 placement
+
+[ceph:children]
+control
+
+[ceph-mgr:children]
+ceph
+
+[ceph-mon:children]
+ceph
+
+[ceph-osd:children]
+storage
+
+[ceph-mds:children]
+[ceph-nfs:children]
+[ceph-rgw:children]
