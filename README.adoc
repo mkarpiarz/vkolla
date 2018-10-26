@@ -1,0 +1,31 @@
+== Manual steps
+Following manual steps need to be performed before deploying OpenStack on the platform:
+
+0. Build a deployment container.
+1. Spin up the Heat stack with all the instances. Wait for it to complete creating all resources.
+2. Spin up a bastion host, install OpenVPN on it, get client keys off of it, bring VPN up.
+3. Generate inventory hosts.
+
+-------
+# cd <where-this-repo-is-mounted>
+# python generate_inventory.py /etc/kolla/inventory/vkolla/01_hosts
+-------
+4. Log into the deployment container and install Python by running these raw commands:
+
+-------
+# ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get update"
+# ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get -y install python-dev"
+-------
+5. Deploy Kolla with Kolla-Ansible:
+
+-------
+# cd /kolla/kolla-ansible/tools/
+# ./kolla-ansible -i /etc/kolla/inventory/vkolla bootstrap-servers
+# ./kolla-ansible -i /etc/kolla/inventory/vkolla deploy
+-------
+6. Post deploy, testing, etc.
+
+-------
+# ./kolla-ansible -i /etc/kolla/inventory/vkolla post-deploy
+# source /etc/kolla/admin-openrc.sh
+-------
