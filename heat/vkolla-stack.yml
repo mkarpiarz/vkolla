@@ -390,7 +390,7 @@ resources:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
           metadata:
-            groups: compute
+            groups: external-compute
 
   test_client:
     type: OS::Nova::Server
