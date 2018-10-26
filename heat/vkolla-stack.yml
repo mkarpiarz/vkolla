@@ -339,6 +339,7 @@ resources:
       resource_def:
         type: OS::Nova::Server
         properties:
+          name: control%index%
           image: { get_param: image }
           flavor: { get_param: control_flavour }
           key_name: { get_param: key }
@@ -348,6 +349,8 @@ resources:
           networks:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
+          metadata:
+            groups: control
 
   # TODO: Allow access to HAProxy stats.
   network_instances:
@@ -357,6 +360,7 @@ resources:
       resource_def:
         type: OS::Nova::Server
         properties:
+          name: network%index%
           image: { get_param: image }
           flavor: { get_param: network_flavour }
           key_name: { get_param: key }
@@ -379,6 +383,8 @@ resources:
               port_extra_properties:
                 allowed_address_pairs:
                 - ip_address: { get_param: external_vip }
+          metadata:
+            groups: network
 
   compute_instances:
     type: OS::Heat::ResourceGroup
@@ -387,6 +393,7 @@ resources:
       resource_def:
         type: OS::Nova::Server
         properties:
+          name: compute%index%
           image: { get_param: image }
           flavor: { get_param: compute_flavour }
           key_name: { get_param: key }
@@ -396,10 +403,13 @@ resources:
           networks:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
+          metadata:
+            groups: external-compute
 
   test_client:
     type: OS::Nova::Server
     properties:
+      name: test_client
       image: { get_param: image }
       flavor: { get_param: client_flavour }
       key_name: { get_param: key }
