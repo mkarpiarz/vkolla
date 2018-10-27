@@ -27,6 +27,11 @@ parameters:
     label: Compute instance flavour
     description: Flavour to use with compute instances
     default: m1.large
+  storage_flavour:
+    type: string
+    label: Storage instance flavour
+    description: Flavour to use with storage instances
+    default: m1.small
   client_flavour:
     type: string
     label: Client instance flavour
@@ -253,6 +258,39 @@ resources:
       protocol: tcp
       remote_group: { get_resource: os_services_api_client }
 
+  ceph_control_daemons:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Open ports for Ceph control daemons (MON, MDS, etc.)
+      name: ceph-control-daemons
+
+  ceph_storage_daemons:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Open ports for Ceph storage daemons (OSD)
+      name: ceph-storage-daemons
+
+  ceph_mon_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: ceph_control_daemons }
+      description: Ceph control
+      direction: ingress
+      port_range_min: 6789
+      port_range_max: 6789
+      protocol: tcp
+      remote_ip_prefix: { get_param: main_net_cidr }
+  ceph_osds_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: ceph_storage_daemons }
+      description: Ceph storage
+      direction: ingress
+      port_range_min: 6800
+      port_range_max: 7300
+      protocol: tcp
+      remote_ip_prefix: { get_param: main_net_cidr }
+
 # Networks and routers
   main_net:
     type: OS::Neutron::Net
@@ -346,6 +384,7 @@ resources:
           security_groups:
             - { get_resource: os_services_infra_server }
             - { get_resource: os_services_api_server }
+            - { get_resource: ceph_control_daemons }
           networks:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
@@ -405,6 +444,25 @@ resources:
             - network: { get_resource: tunnel_net }
           metadata:
             groups: external-compute
+
+  storage_instances:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: 1
+      resource_def:
+        type: OS::Nova::Server
+        properties:
+          name: storage%index%
+          image: { get_param: image }
+          flavor: { get_param: storage_flavour }
+          key_name: { get_param: key }
+          security_groups:
+            - { get_resource: os_services_api_client }
+            - { get_resource: ceph_storage_daemons }
+          networks:
+            - network: { get_resource: main_net }
+          metadata:
+            groups: storage
 
   test_client:
     type: OS::Nova::Server
