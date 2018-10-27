@@ -1,0 +1,16 @@
+---
+ceph_origin: repository
+ceph_repository: community
+ceph_stable_release: mimic
+public_network: 192.168.17.0/24
+cluster_network: 192.168.17.0/24
+monitor_interface: ens3
+osd_objectstore: bluestore
+devices:
+  - /dev/loop0
+osd_scenario: collocated
+openstack_config: true
+ceph_conf_overrides:
+  global:
+    osd_pool_default_pg_num: 8
+    osd_pool_default_size: 1

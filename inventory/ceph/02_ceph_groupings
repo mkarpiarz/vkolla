@@ -1,0 +1,5 @@
+[mons:children]
+storage
+
+[osds:children]
+storage
