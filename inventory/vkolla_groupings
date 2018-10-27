@@ -6,6 +6,7 @@ external-compute
 control
 network
 compute
+storage
 
 [bifrost:children]
 deployment
