@@ -461,6 +461,12 @@ resources:
             - { get_resource: ceph_storage_daemons }
           networks:
             - network: { get_resource: main_net }
+          user_data_format: RAW
+          user_data: |
+            #!/bin/sh
+            dd if=/dev/zero of=/opt/ceph_disk.img bs=1M count=10240
+            losetup -f /opt/ceph_disk.img
+            parted /dev/loop0 -s -- mklabel gpt mkpart KOLLA_CEPH_OSD_BOOTSTRAP 1 -1
           metadata:
             groups: storage
 
