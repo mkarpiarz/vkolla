@@ -258,6 +258,19 @@ resources:
       protocol: tcp
       remote_group: { get_resource: os_services_api_client }
 
+  vxlan_tunnel:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Open VXLAN port
+      name: VXLAN-tunnel
+      rules:
+      - direction: ingress
+        port_range_min: 4789
+        port_range_max: 4789
+        protocol: udp
+        remote_mode: remote_ip_prefix
+        remote_ip_prefix: { get_param: tunnel_net_cidr }
+
   ceph_control_daemons:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -408,6 +421,7 @@ resources:
             - { get_resource: os_services_infra_client }
             - { get_resource: os_services_api_server }
             - { get_resource: os_services_api_client }
+            - { get_resource: vxlan_tunnel }
           networks:
             - subnet: { get_resource: main_net_subnet }
               port_extra_properties:
@@ -439,6 +453,7 @@ resources:
           security_groups:
             - { get_resource: os_services_infra_client }
             - { get_resource: os_services_api_client }
+            - { get_resource: vxlan_tunnel }
           networks:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
