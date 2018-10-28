@@ -52,4 +52,5 @@ Following manual steps need to be performed before deploying OpenStack on the pl
 -------
 # ./kolla-ansible -i /etc/kolla/inventory/vkolla post-deploy
 # source /etc/kolla/admin-openrc.sh
+# /etc/kolla/scripts/populate_dev_cloud.sh
 -------
