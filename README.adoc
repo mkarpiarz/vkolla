@@ -7,8 +7,7 @@ Following manual steps need to be performed before deploying OpenStack on the pl
 3. Generate inventory hosts.
 
 -------
-# cd <where-this-repo-is-mounted>
-# python generate_inventory.py /etc/kolla/inventory/vkolla/01_hosts
+# /etc/kolla/scripts/generate_inventory.py /etc/kolla/inventory/vkolla/01_hosts
 -------
 4. Log into the deployment container and install Python by running these raw commands:
 
