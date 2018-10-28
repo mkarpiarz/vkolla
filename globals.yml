@@ -294,9 +294,7 @@ enable_horizon: "no"
 
 # Set the pgs and pgps for pool
 #ceph_pool_pg_num: 128
-ceph_pool_pg_num: 8
 #ceph_pool_pgp_num: 128
-ceph_pool_pgp_num: 8
 
 #############################
 # Keystone - Identity Options
@@ -319,7 +317,6 @@ ceph_pool_pgp_num: 8
 # Configure image backend.
 #glance_backend_file: "yes"
 glance_backend_file: "no"
-#glance_backend_file: "yes"
 #glance_backend_ceph: "no"
 glance_backend_ceph: "yes"
 #glance_backend_vmware: "no"
