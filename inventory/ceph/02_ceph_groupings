@@ -1,8 +1,8 @@
 [mons:children]
-storage
+control
 
 [osds:children]
 storage
 
 [mgrs:children]
-storage
+control

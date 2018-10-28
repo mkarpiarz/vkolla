@@ -293,6 +293,18 @@ resources:
       port_range_max: 6789
       protocol: tcp
       remote_ip_prefix: { get_param: main_net_cidr }
+  # Ceph network reference guide suggests to open a whole 6800-7300
+  ceph_mgr_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: ceph_control_daemons }
+      description: Ceph MGR
+      direction: ingress
+      port_range_min: 6800
+      port_range_max: 7300
+      protocol: tcp
+      remote_ip_prefix: { get_param: main_net_cidr }
+
   ceph_osds_port:
     type: OS::Neutron::SecurityGroupRule
     properties:
@@ -474,7 +486,6 @@ resources:
           security_groups:
             - { get_resource: os_services_api_client }
             - { get_resource: ceph_storage_daemons }
-            - { get_resource: ceph_control_daemons }
           networks:
             - network: { get_resource: main_net }
           user_data_format: RAW
