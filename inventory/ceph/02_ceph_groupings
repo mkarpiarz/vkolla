@@ -3,3 +3,6 @@ storage
 
 [osds:children]
 storage
+
+[mgrs:children]
+storage
