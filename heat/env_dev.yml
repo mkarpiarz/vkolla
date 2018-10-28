@@ -4,6 +4,7 @@ parameters:
   control_flavour: m1.tiny
   network_flavour: m1.tiny
   compute_flavour: m1.tiny
+  storage_flavour: m1.tiny
   client_flavour: m1.tiny
   external_network: external
   main_net_cidr: 192.168.1.0/24

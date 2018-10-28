@@ -1,0 +1,8 @@
+[mons:children]
+control
+
+[osds:children]
+storage
+
+[mgrs:children]
+control

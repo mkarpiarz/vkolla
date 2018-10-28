@@ -1,0 +1,20 @@
+---
+- name: Fetch Ceph config and keys for OpenStack services
+  hosts: "{{ groups['mons'][0] }}"
+
+  tasks:
+  - name: Export Ceph user keys to files
+    shell: ceph auth get {{ item }} -o /etc/ceph/ceph.{{ item }}.keyring
+    with_items:
+    - client.glance
+
+  - name: Fetch Ceph config and keys
+    synchronize:
+      src: "{{ item.file }}"
+      dest: "{{ item.dest }}"
+      mode: pull
+    with_items:
+    - file: /etc/ceph/ceph.conf
+      dest: /etc/kolla/config/glance/
+    - file: /etc/ceph/ceph.client.glance.keyring
+      dest: /etc/kolla/config/glance/

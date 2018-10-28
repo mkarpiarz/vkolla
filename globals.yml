@@ -172,6 +172,7 @@ enable_nova: "yes"
 #enable_ceilometer: "no"
 #enable_central_logging: "no"
 #enable_ceph: "no"
+enable_ceph: "no"
 #enable_ceph_mds: "no"
 #enable_ceph_rgw: "no"
 #enable_ceph_nfs: "no"
@@ -315,7 +316,9 @@ enable_horizon: "no"
 ########################
 # Configure image backend.
 #glance_backend_file: "yes"
+glance_backend_file: "no"
 #glance_backend_ceph: "no"
+glance_backend_ceph: "yes"
 #glance_backend_vmware: "no"
 #glance_backend_swift: "no"
 
