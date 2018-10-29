@@ -572,5 +572,16 @@ resources:
       networks:
         - port: { get_resource: bastion_fip_port }
         - network: { get_resource: vip_net }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/sh
+            ip link set ens4 up
+            dhclient -v ens4
+            iptables -t nat -I POSTROUTING -s 10.8.0.0/24 -o ens3 -j MASQUERADE
+            iptables -t nat -I POSTROUTING -s 10.8.0.0/24 -d $ext_vip_net -o ens4 -j MASQUERADE
+          params:
+            $ext_vip_net: {get_param: vip_net_cidr }
       metadata:
         groups: bastions
