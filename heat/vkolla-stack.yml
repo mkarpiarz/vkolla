@@ -497,7 +497,7 @@ resources:
             groups: storage
 
   # Client
-  main_router:
+  client_router:
     type: OS::Neutron::Router
     properties:
       name: client_router
