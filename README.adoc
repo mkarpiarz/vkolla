@@ -22,8 +22,8 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 # ansible -i /etc/kolla/inventory/vkolla control,network,compute -m raw -a "ip link set ens4 up"
 # ansible -i /etc/kolla/inventory/vkolla control,network,compute -m raw -a "dhclient -v ens4"
 # ansible -i /etc/kolla/inventory/vkolla network -m raw -a "ip link set ens5 up"
-# ansible -i /etc/kolla/inventory/vkolla network -m raw -a "dhclient -v ens5"
 # ansible -i /etc/kolla/inventory/vkolla network -m raw -a "ip link set ens6 up"
+# ansible -i /etc/kolla/inventory/vkolla network -m raw -a "dhclient -v ens6"
 -------
 6. Bootstrap servers to install prerequisites, create config directories, etc.
 
