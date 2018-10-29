@@ -388,12 +388,6 @@ resources:
       router_id: { get_resource: main_router }
       subnet: { get_resource: main_net_subnet }
 
-  vip_net_interface:
-    type: OS::Neutron::RouterInterface
-    properties:
-      router_id: { get_resource: main_router }
-      subnet: { get_resource: vip_net_subnet }
-
   provider_net_interface:
     type: OS::Neutron::RouterInterface
     properties:
@@ -501,6 +495,20 @@ resources:
             partprobe
           metadata:
             groups: storage
+
+  # Client
+  main_router:
+    type: OS::Neutron::Router
+    properties:
+      name: client_router
+      external_gateway_info:
+        network: { get_param: external_network }
+
+  vip_net_client_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: client_router }
+      subnet: { get_resource: vip_net_subnet }
 
   test_client:
     type: OS::Nova::Server
