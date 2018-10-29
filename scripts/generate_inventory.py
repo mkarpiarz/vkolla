@@ -126,7 +126,7 @@ def main(argv):
                     ip = server.addresses.get(common_net)[0].get('addr')
 
                 line = '{} ansible_host={} ' \
-                       'ansible_user=ubuntu ansible_become=yes' \
+                       'ansible_user=ubuntu ansible_become=yes\n' \
                        .format(server.name, ip)
                 print(line)
                 inv_out.write(line)
