@@ -37,6 +37,11 @@ parameters:
     label: Client instance flavour
     description: Flavour to use with client instances
     default: m1.small
+  bastion_flavour:
+    type: string
+    label: Bastion instance flavour
+    description: Flavour to use with the bastion
+    default: m1.small
   external_network:
     type: string
     label: External network name or ID
@@ -509,3 +514,51 @@ resources:
         - { get_resource: os_services_api_client }
       networks:
         - network: { get_resource: vip_net }
+
+  # Bastion
+  bastion_sg:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Access to the host from the outside world
+      name: bastion
+      rules:
+      - direction: ingress
+        port_range_min: 22
+        port_range_max: 22
+        protocol: tcp
+        remote_mode: remote_ip_prefix
+        remote_ip_prefix: 0.0.0.0/0
+      - direction: ingress
+        port_range_min: 1194
+        port_range_max: 1194
+        protocol: udp
+        remote_mode: remote_ip_prefix
+        remote_ip_prefix: 0.0.0.0/0
+
+  bastion_fip_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: main_net }
+      fixed_ips:
+        - subnet: { get_resource: main_net_subnet }
+      security_groups:
+        - { get_resource: bastion_sg }
+
+  bastion_fip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: external_network }
+      port_id: { get_resource: bastion_fip_port }
+
+  bastion_instance:
+    type: OS::Nova::Server
+    properties:
+      name: bastion
+      image: { get_param: image }
+      flavor: { get_param: bastion_flavour }
+      key_name: { get_param: key }
+      networks:
+        - port: { get_resource: bastion_fip_port }
+        - network: { get_resource: vip_net }
+      metadata:
+        groups: bastions
