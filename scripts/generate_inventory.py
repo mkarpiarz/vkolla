@@ -78,8 +78,13 @@ def main(argv):
     print(hist_nets)
     # First element of the first tuple on the list
     # (most instances are connected to this network)
-    common_net = hist_nets[0][0]
-    print('most common network: ' + common_net)
+    if hist_nets:
+        common_net = hist_nets[0][0]
+        print('most common network: ' + common_net)
+    else:
+        sys.stderr.write('ERROR: No hosts with the "' + group_tag +
+                         '" tag found!\n')
+        return 1
     print(groupings)
 
     try:
