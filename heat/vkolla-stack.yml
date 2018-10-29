@@ -409,6 +409,8 @@ resources:
             - { get_resource: os_services_infra_server }
             - { get_resource: os_services_api_server }
             - { get_resource: ceph_control_daemons }
+            # Below only needed because of the rule allowing SSH from bastion
+            - { get_resource: os_services_api_client }
           networks:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
@@ -570,6 +572,7 @@ resources:
         remote_ip_prefix: 0.0.0.0/0
 
   # SSH into API clients from bastion
+  # TODO: Create a dedicated group only for this rule
   ssh_from_bastion:
     type: OS::Neutron::SecurityGroupRule
     properties:
