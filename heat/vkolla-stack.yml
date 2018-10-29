@@ -514,6 +514,32 @@ resources:
         - { get_resource: os_services_api_client }
       networks:
         - network: { get_resource: vip_net }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/sh
+            apt-get update
+            sudo apt-get install python-pip
+            pip install python-openstackclient
+            cat << EOF > ~/admin-openrc.sh
+            #!/usr/bin/env bash
+            export OS_PROJECT_DOMAIN_NAME=Default
+            export OS_USER_DOMAIN_NAME=Default
+            export OS_PROJECT_NAME=admin
+            export OS_TENANT_NAME=admin
+            export OS_USERNAME=admin
+            echo "Please enter your OpenStack Password for project $OS_PROJECT_NAME as user $OS_USERNAME: "
+            read -sr OS_PASSWORD
+            export OS_PASSWORD
+            export OS_AUTH_URL=http://$ext_vip:5000/v3
+            export OS_INTERFACE=public
+            export OS_IDENTITY_API_VERSION=3
+            export OS_REGION_NAME=RegionOne
+            export OS_AUTH_PLUGIN=password
+            EOF
+          params:
+            $ext_vip: { get_param: external_vip }
 
   # Bastion
   bastion_sg:
