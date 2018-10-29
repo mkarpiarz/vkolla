@@ -54,6 +54,8 @@ def main(argv):
     networks = defaultdict(int)
     # host groupings
     groupings = defaultdict(list)
+    # servers with floating IPs
+    floaters = dict()
     # name of the tag used for grouping
     group_tag = 'groups'
 
@@ -63,6 +65,12 @@ def main(argv):
             try:
                 for net in server.addresses.keys():
                     networks[net] += 1
+                    # Detect servers with floating IPs
+                    for interface in server.addresses.get(net):
+                        if (interface.get('OS-EXT-IPS:type') == 'floating'):
+                            print("INFO: Server '{}' has a floating IP"
+                                  .format(server.name))
+                            floaters[server] = interface.get('addr')
                 name = server.name
 
                 # Assigns servers to groups based on comma separated values
@@ -99,15 +107,19 @@ def main(argv):
         inv_out.write('[' + group_name + ']\n')
         for server in servers:
             try:
-                '''
-                The data structure holding the IPs looks like this:
-                'addresses': {
-                  'net0': [{ ... 'addr': 'x.x.x.x', ... }],
-                  'net1': [{ ... 'addr': 'y.y.y.y', ... }],
-                  ...
-                }
-                '''
-                ip = server.addresses.get(common_net)[0].get('addr')
+                # Use floating IP when available
+                if floaters and server in floaters.keys():
+                    ip = floaters[server]
+                else:
+                    '''
+                    The data structure holding the IPs looks like this:
+                    'addresses': {
+                      'net0': [{ ... 'addr': 'x.x.x.x', ... }],
+                      'net1': [{ ... 'addr': 'y.y.y.y', ... }],
+                      ...
+                    }
+                    '''
+                    ip = server.addresses.get(common_net)[0].get('addr')
 
                 line = '{} ansible_host={} ' \
                        'ansible_user=ubuntu ansible_become=yes' \
