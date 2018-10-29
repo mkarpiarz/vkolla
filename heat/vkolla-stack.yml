@@ -535,6 +535,18 @@ resources:
         remote_mode: remote_ip_prefix
         remote_ip_prefix: 0.0.0.0/0
 
+  # SSH into API clients from bastion
+  ssh_from_bastion:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_api_client }
+      description: Access to the host from a SSH tunnel through bastion
+      direction: ingress
+      port_range_min: 22
+      port_range_max: 22
+      protocol: tcp
+      remote_group: { get_resource: bastion_sg }
+
   bastion_fip_port:
     type: OS::Neutron::Port
     properties:
