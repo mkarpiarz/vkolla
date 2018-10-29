@@ -373,7 +373,7 @@ resources:
       name: vip_net_subnet
       network_id: { get_resource: vip_net }
       cidr: { get_param: vip_net_cidr }
-      enable_dhcp: false
+      enable_dhcp: true
 
   main_router:
     type: OS::Neutron::Router
