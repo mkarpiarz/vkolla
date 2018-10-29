@@ -35,8 +35,12 @@ class Credentials:
 
 class Servers(object):
     def __init__(self, creds):
+        # OS_ENDPOINT_TYPE can have the same values as OS_INTERFACE,
+        # i.e. public (default), internal, admin
+        endpoint_type = os.environ.get('OS_ENDPOINT_TYPE')
         self.client = nova_client.Client(version=2,
-                                         session=creds.get_session())
+                                         session=creds.get_session(),
+                                         endpoint_type=endpoint_type)
 
     def get_servers(self):
         return self.client.servers.list(detailed=True)
