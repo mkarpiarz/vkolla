@@ -49,6 +49,7 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 9. Deploy Kolla with Kolla-Ansible:
 
 -------
+# cd /kolla/kolla-ansible/tools/
 # ./kolla-ansible -i /etc/kolla/inventory/vkolla deploy
 -------
 10. Post deploy, testing, etc.
