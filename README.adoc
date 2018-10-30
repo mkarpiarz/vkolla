@@ -142,6 +142,11 @@ $ source admin-openrc.sh
 -------
 Run some openstack client commands -- like `openstack image list`, `nova list` -- to confirm this works as expected.
 
+[NOTE]
+=======
+You can also SSH into launched VMs through their floating IPs from this client instance.
+=======
+
 == Custom overrides
 To enable a service that's not part of the current config, first add groupings for this service (as a new file) in the inventory:
 
