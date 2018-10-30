@@ -456,7 +456,6 @@ resources:
           metadata:
             groups: control
 
-  # TODO: Allow access to HAProxy stats.
   # TODO: Find a way to disable port security on provider network ports
   network_instances:
     type: OS::Heat::ResourceGroup
@@ -626,6 +625,7 @@ resources:
       protocol: tcp
       remote_group: { get_resource: bastion_sg }
 
+  # The infra_client SG is just to give access to HAProxy stats
   bastion_fip_port:
     type: OS::Neutron::Port
     properties:
@@ -635,6 +635,7 @@ resources:
       security_groups:
         - { get_resource: bastion_sg }
         - { get_resource: os_services_api_client }
+        - { get_resource: os_services_infra_client }
 
   bastion_fip:
     type: OS::Neutron::FloatingIP
