@@ -102,6 +102,17 @@ resources:
       port_range_max: 5672
       protocol: tcp
       remote_group: { get_resource: os_services_infra_client }
+  # NOTE: Also open 5671 if using TLS
+  rabbitmq_epmd_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: RabbitMQ peer discovery service
+      direction: ingress
+      port_range_min: 4369
+      port_range_max: 4369
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
   rabbitmq_mgmt_port:
     type: OS::Neutron::SecurityGroupRule
     properties:
@@ -137,10 +148,41 @@ resources:
     type: OS::Neutron::SecurityGroupRule
     properties:
       security_group: { get_resource: os_services_infra_server }
-      description: MySQL/MariaDB replication port (Galera)
+      description: MySQL/MariaDB replication port (Galera) - TCP
       direction: ingress
       port_range_min: 4567
       port_range_max: 4567
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+  # TODO: Make sure below MySQL/Galera ports are necessary
+  mysql_repl_port_udp:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: MySQL/MariaDB replication port (Galera) - UDP
+      direction: ingress
+      port_range_min: 4567
+      port_range_max: 4567
+      protocol: udp
+      remote_group: { get_resource: os_services_infra_client }
+  mysql_ist_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: Galera - Incremental State Transfer port
+      direction: ingress
+      port_range_min: 4568
+      port_range_max: 4568
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+  mysql_sst_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: Galera - State Snapshot Transfer port
+      direction: ingress
+      port_range_min: 4444
+      port_range_max: 4444
       protocol: tcp
       remote_group: { get_resource: os_services_infra_client }
 
@@ -373,7 +415,7 @@ resources:
       name: vip_net_subnet
       network_id: { get_resource: vip_net }
       cidr: { get_param: vip_net_cidr }
-      enable_dhcp: false
+      enable_dhcp: true
 
   main_router:
     type: OS::Neutron::Router
@@ -388,16 +430,10 @@ resources:
       router_id: { get_resource: main_router }
       subnet: { get_resource: main_net_subnet }
 
-  provider_net_interface:
-    type: OS::Neutron::RouterInterface
-    properties:
-      router_id: { get_resource: main_router }
-      subnet: { get_resource: provider_net_subnet }
-
   control_instances:
     type: OS::Heat::ResourceGroup
     properties:
-      count: 1
+      count: 3
       resource_def:
         type: OS::Nova::Server
         properties:
@@ -409,17 +445,22 @@ resources:
             - { get_resource: os_services_infra_server }
             - { get_resource: os_services_api_server }
             - { get_resource: ceph_control_daemons }
+            # Below only needed because of the rule allowing SSH from bastion
+            - { get_resource: os_services_api_client }
+            # Needed for Galera members to communicate
+            # TODO: Consider creating a separate rule for Galera
+            - { get_resource: os_services_infra_client }
           networks:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
           metadata:
             groups: control
 
-  # TODO: Allow access to HAProxy stats.
+  # TODO: Find a way to disable port security on provider network ports
   network_instances:
     type: OS::Heat::ResourceGroup
     properties:
-      count: 1
+      count: 2
       resource_def:
         type: OS::Nova::Server
         properties:
@@ -440,9 +481,6 @@ resources:
                 - ip_address: { get_param: internal_vip }
             - network: { get_resource: tunnel_net }
             - subnet: { get_resource: provider_net_subnet }
-              port_extra_properties:
-                allowed_address_pairs:
-                - ip_address: { get_param: provider_net_cidr }
             - subnet: { get_resource: vip_net_subnet }
               port_extra_properties:
                 allowed_address_pairs:
@@ -474,7 +512,7 @@ resources:
   storage_instances:
     type: OS::Heat::ResourceGroup
     properties:
-      count: 1
+      count: 2
       resource_def:
         type: OS::Nova::Server
         properties:
@@ -510,6 +548,12 @@ resources:
       router_id: { get_resource: client_router }
       subnet: { get_resource: vip_net_subnet }
 
+  provider_net_client_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: client_router }
+      subnet: { get_resource: provider_net_subnet }
+
   test_client:
     type: OS::Nova::Server
     properties:
@@ -518,7 +562,6 @@ resources:
       flavor: { get_param: client_flavour }
       key_name: { get_param: key }
       security_groups:
-        - { get_resource: os_services_infra_client }
         - { get_resource: os_services_api_client }
       networks:
         - network: { get_resource: vip_net }
@@ -528,9 +571,9 @@ resources:
           template: |
             #!/bin/sh
             apt-get update
-            sudo apt-get install python-pip
+            apt-get install -y python-pip
             pip install python-openstackclient
-            cat << EOF > ~/admin-openrc.sh
+            cat << EOF > /home/ubuntu/admin-openrc.sh
             #!/usr/bin/env bash
             export OS_PROJECT_DOMAIN_NAME=Default
             export OS_USER_DOMAIN_NAME=Default
@@ -570,6 +613,7 @@ resources:
         remote_ip_prefix: 0.0.0.0/0
 
   # SSH into API clients from bastion
+  # TODO: Create a dedicated group only for this rule
   ssh_from_bastion:
     type: OS::Neutron::SecurityGroupRule
     properties:
@@ -581,6 +625,7 @@ resources:
       protocol: tcp
       remote_group: { get_resource: bastion_sg }
 
+  # The infra_client SG is just to give access to HAProxy stats
   bastion_fip_port:
     type: OS::Neutron::Port
     properties:
@@ -589,12 +634,25 @@ resources:
         - subnet: { get_resource: main_net_subnet }
       security_groups:
         - { get_resource: bastion_sg }
+        - { get_resource: os_services_api_client }
+        - { get_resource: os_services_infra_client }
 
   bastion_fip:
     type: OS::Neutron::FloatingIP
     properties:
       floating_network: { get_param: external_network }
       port_id: { get_resource: bastion_fip_port }
+
+  # This port is needed because Heat doesn't allow to assign sec groups
+  # to instances with a port already attached.
+  # TODO: Find a better way of doing this.
+  bastion_vip_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: vip_net }
+      security_groups:
+        - { get_resource: bastion_sg }
+        - { get_resource: os_services_api_client }
 
   bastion_instance:
     type: OS::Nova::Server
@@ -605,7 +663,7 @@ resources:
       key_name: { get_param: key }
       networks:
         - port: { get_resource: bastion_fip_port }
-        - network: { get_resource: vip_net }
+        - port: { get_resource: bastion_vip_port }
       user_data_format: RAW
       user_data:
         str_replace:

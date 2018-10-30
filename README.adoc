@@ -1,62 +1,188 @@
 == Manual steps
 Following manual steps need to be performed before deploying OpenStack on the platform:
 
-1. Build a deployment container.
-2. Spin up the Heat stack with all the instances. Wait for it to complete creating all resources.
-3. Spin up a bastion host, install OpenVPN on it, get client keys off of it, bring VPN up.
-4. Generate inventory hosts.
+* Clone prerequisites:
+-------
+$ mkdir reqs
+$ cd reqs/
+$ git clone https://github.com/mkarpiarz/vkolla-deploy
+$ cd vkolla-deploy/
+$ git checkout 7d55ae2d7aa4989e9a7c6b6b37a654c74a930d56
+$ cd ..
+$ git clone https://github.com/mkarpiarz/vpn-deploy
+$ cd vpn-deploy/
+$ git checkout c77e40838e5eabaf5b4353a5f757e820e6a22025
+$ cd -
+$ git clone https://github.com/ceph/ceph-ansible -b stable-3.1
+-------
+
+* On a machine with Docker (laptop, server) build a deployment container image using repo in `reqs/vkolla-deploy/`.
+Tested build-args:
+** `K_BRANCH="stable/queens"`
+** `KA_BRANCH="stable/queens"`
+** `ANSIBLE_VERSION=2.4`
++
+* Run the deployment container:
++
+-------
+docker run -dit --name kolla-deploy \
+    -v $(pwd):/etc/kolla/ \
+    -v $(pwd)/reqs/ceph-ansible/:/ceph/ceph-ansible/ \
+    -v $(pwd)/reqs/vpn-deploy/:/vpn-deploy/ \
+    -v <VPN-conf-dir>:/root/VPN/ \
+    kolla-deploy:latest \
+    /bin/bash
+-------
+where `<VPN-conf-dir>` is host a directory where VPN client config and keys for accessing private networks will be downloaded (doesn't need to exist).
++
+* Log into the container:
++
+-------
+$ docker exec -it kolla-deploy /bin/bash
+-------
++
+* Spin up Heat stack with all the resources:
++
+-------
+# cd /etc/kolla/heat/
+# openstack stack create --template vkolla-stack.yml --parameter key=<your-keypair-name> vkolla --wait
+-------
++
+* Generate inventory hosts.
 +
 -------
 # /etc/kolla/scripts/generate_inventory.py /etc/kolla/inventory/vkolla/01_hosts
 -------
 +
-5. Log into the deployment container and install Python by running these raw commands:
+* Install Python on the bastion:
 +
 -------
-# ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get update"
-# ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get -y install python-dev"
+# ansible -i /etc/kolla/inventory/vkolla bastions -m raw -a "apt-get update; apt-get -y install python-dev"
 -------
 +
-6. Bring secondary interfaces up:
+* Install OpenVPN on the bastion host:
++
+-------
+# cd /vpn-deploy/
+# ansible-playbook -i /etc/kolla/inventory/vkolla vpn-deploy.yml -e 'target=bastions'
+-------
++
+* From now on private IPs of instances will be used, so add fetched client config and keys to your VPN client (openvpn, Tunnelblick, Viscosity, ...) and activate the tunnel.
++
+* Install Python on all hosts:
++
+-------
+# ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get update; apt-get -y install python-dev"
+-------
++
+* Bring secondary interfaces up:
 +
 -------
 # ansible -i /etc/kolla/inventory/vkolla control,network,compute -m raw -a "ip link set ens4 up"
 # ansible -i /etc/kolla/inventory/vkolla control,network,compute -m raw -a "dhclient -v ens4"
 # ansible -i /etc/kolla/inventory/vkolla network -m raw -a "ip link set ens5 up"
-# ansible -i /etc/kolla/inventory/vkolla network -m raw -a "dhclient -v ens5"
 # ansible -i /etc/kolla/inventory/vkolla network -m raw -a "ip link set ens6 up"
+# ansible -i /etc/kolla/inventory/vkolla network -m raw -a "dhclient -v ens6"
 -------
 +
-7. Bootstrap servers to install prerequisites, create config directories, etc.
+* Bootstrap servers to install prerequisites, create config directories, etc.
 +
 -------
 # cd /kolla/kolla-ansible/tools/
 # ./kolla-ansible -i /etc/kolla/inventory/vkolla bootstrap-servers
 -------
 +
-8. Deploy Ceph with `ceph-ansible`:
+* Deploy Ceph with `ceph-ansible`:
 +
 -------
 # cd /ceph/ceph-ansible/
+# cp site.yml.sample site.yml
+# echo "control_path = /dev/shm/cp%%h-%%p-%%r" >> ansible.cfg
 # ansible-playbook -i /etc/kolla/inventory/ceph site.yml
 -------
 +
-9. Download Ceph config file and client keys for services utilising Ceph:
+* Download Ceph config file and client keys for services utilising Ceph:
 +
 -------
 # ansible-playbook -i /etc/kolla/inventory/ceph /etc/kolla/playbooks/fetch_ceph_config_and_keys.yml
 -------
 +
-10. Deploy Kolla with Kolla-Ansible:
+* Deploy Kolla with Kolla-Ansible:
 +
 -------
+# cd /kolla/kolla-ansible/tools/
 # ./kolla-ansible -i /etc/kolla/inventory/vkolla deploy
 -------
 +
-11. Post deploy, testing, etc.
+* Post deploy, testing, etc.
 +
 -------
 # ./kolla-ansible -i /etc/kolla/inventory/vkolla post-deploy
 # source /etc/kolla/admin-openrc.sh
 # /etc/kolla/scripts/populate_dev_cloud.sh
 -------
+
+[NOTE]
+=======
+To route traffic in and out instances launched on this platform (this includes communicating with them through their floating IPs), port security must be disabled on ports in the network serving as provider network on the underlying cloud platform. Currently this is a manual process that can be done in Horizon by first removing all security groups from all named ports in the `provider_net` network and then unchecking the "Port Security" checkbox.
+=======
+
+=== Client instance
+Deployment stack also creates a small client instance that can access deployment through the external VIP and has openstack CLI tools installed.
+
+To use this client, you'll also need admin password, so get it by running this command on the deployment container:
+
+-------
+# grep keystone_admin /etc/kolla/passwords.yml
+-------
+Next, find the IP of the `test_client` instance and log into it (as `ubuntu` user). When inside, source environment variables from this openrc file:
+
+-------
+$ source admin-openrc.sh
+-------
+Run some openstack client commands -- like `openstack image list`, `nova list` -- to confirm this works as expected.
+
+[NOTE]
+=======
+You can also SSH into launched VMs through their floating IPs from this client instance.
+=======
+
+== Custom overrides
+To enable a service that's not part of the current config, first add groupings for this service (as a new file) in the inventory:
+
+-------
+# cat /etc/kolla/inventory/vkolla/90_heat
+[heat:children]
+control
+
+[heat-api:children]
+heat
+
+[heat-api-cfn:children]
+heat
+
+[heat-engine:children]
+heat
+-------
+Next, apply your overrides - here Heat is enabled:
+
+-------
+# cat /etc/kolla/globals_heat.yml
+---
+enable_heat: "yes"
+-------
+Finally, rerun `deploy` playbooks with your overrides as extra vars (use tags to speed up the process if the platform has already been deployed):
+
+-------
+# cd /kolla/kolla-ansible/tools/
+# ./kolla-ansible -i /etc/kolla/inventory/vkolla deploy -e @/etc/kolla/globals_heat.yml --tags haproxy,heat
+-------
+
+[NOTE]
+=======
+Currently, nothing is taking care of opening ports for services enabled this way, so appropriate security group rules need to be added separately.
+=======
+
+== Known issues
+
+* Tasks like "Running Neutron bootstrap container" can run for a long time. If this time is longer than SSH connection timeout for deployment hosts, the whole deployment will fail. The bootstrap process will still continue, so deployment playbooks can be safely rerun when this is done. TODO: Increase this timeout?
