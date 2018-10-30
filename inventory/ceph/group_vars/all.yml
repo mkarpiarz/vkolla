@@ -12,5 +12,5 @@ osd_scenario: collocated
 openstack_config: true
 ceph_conf_overrides:
   global:
-    osd_pool_default_pg_num: 8
-    osd_pool_default_size: 1
+    osd_pool_default_pg_num: 16
+    osd_pool_default_size: 2
