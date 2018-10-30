@@ -137,10 +137,41 @@ resources:
     type: OS::Neutron::SecurityGroupRule
     properties:
       security_group: { get_resource: os_services_infra_server }
-      description: MySQL/MariaDB replication port (Galera)
+      description: MySQL/MariaDB replication port (Galera) - TCP
       direction: ingress
       port_range_min: 4567
       port_range_max: 4567
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+  # TODO: Make sure below MySQL/Galera ports are necessary
+  mysql_repl_port_udp:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: MySQL/MariaDB replication port (Galera) - UDP
+      direction: ingress
+      port_range_min: 4567
+      port_range_max: 4567
+      protocol: udp
+      remote_group: { get_resource: os_services_infra_client }
+  mysql_ist_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: Galera - Incremental State Transfer port
+      direction: ingress
+      port_range_min: 4568
+      port_range_max: 4568
+      protocol: tcp
+      remote_group: { get_resource: os_services_infra_client }
+  mysql_sst_port:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: os_services_infra_server }
+      description: Galera - State Snapshot Transfer port
+      direction: ingress
+      port_range_min: 4444
+      port_range_max: 4444
       protocol: tcp
       remote_group: { get_resource: os_services_infra_client }
 
