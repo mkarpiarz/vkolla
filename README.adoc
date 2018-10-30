@@ -59,3 +59,34 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 # source /etc/kolla/admin-openrc.sh
 # /etc/kolla/scripts/populate_dev_cloud.sh
 -------
+
+== Custom overrides
+To enable a service that's not part of the current config, first add groupings for this service (as a new file) in the inventory:
+
+-------
+# cat /etc/kolla/inventory/vkolla/90_heat
+[heat:children]
+control
+
+[heat-api:children]
+heat
+
+[heat-api-cfn:children]
+heat
+
+[heat-engine:children]
+heat
+-------
+Next, apply your overrides - here Heat is enabled:
+
+-------
+# cat /etc/kolla/globals_heat.yml
+---
+enable_heat: "yes"
+-------
+Finally, rerun `deploy` playbooks with your overrides as extra vars (use tags to speed up the process if the platform has already been deployed):
+
+-------
+# cd /kolla/kolla-ansible/tools/
+# ./kolla-ansible -i /etc/kolla/inventory/vkolla deploy -e @/etc/kolla/globals_heat.yml --tags haproxy,heat
+-------
