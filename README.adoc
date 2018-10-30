@@ -1,23 +1,27 @@
 == Manual steps
 Following manual steps need to be performed before deploying OpenStack on the platform:
 
-0. Build deployment containers.
+* Build deployment containers.
++
 TODO: Add commands for starting deployment containers with all necessary volumes mounted.
-1. Spin up the Heat stack with all the instances. Wait for it to complete creating all resources.
-2. Generate inventory hosts.
-
++
+* Spin up the Heat stack with all the instances. Wait for it to complete creating all resources.
+* Generate inventory hosts.
++
 -------
 # /etc/kolla/scripts/generate_inventory.py /etc/kolla/inventory/vkolla/01_hosts
 -------
-3. Log into the VPN deployment container and install OpenVPN on the bastion host:
-
++
+* Log into the VPN deployment container and install OpenVPN on the bastion host:
++
 -------
 # cd ~/vpn-deploy/
 # ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get update; apt-get -y install python-dev"
 # ansible-playbook -i /etc/kolla/inventory/vkolla vpn-deploy.yml -e 'target=bastions'
 -------
-5. Bring secondary interfaces up:
-
++
+* Bring secondary interfaces up:
++
 -------
 # ansible -i /etc/kolla/inventory/vkolla control,network,compute -m raw -a "ip link set ens4 up"
 # ansible -i /etc/kolla/inventory/vkolla control,network,compute -m raw -a "dhclient -v ens4"
@@ -25,14 +29,16 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 # ansible -i /etc/kolla/inventory/vkolla network -m raw -a "ip link set ens6 up"
 # ansible -i /etc/kolla/inventory/vkolla network -m raw -a "dhclient -v ens6"
 -------
-6. Bootstrap servers to install prerequisites, create config directories, etc.
-
++
+* Bootstrap servers to install prerequisites, create config directories, etc.
++
 -------
 # cd /kolla/kolla-ansible/tools/
 # ./kolla-ansible -i /etc/kolla/inventory/vkolla bootstrap-servers
 -------
-7. Deploy Ceph with `ceph-ansible`:
-
++
+* Deploy Ceph with `ceph-ansible`:
++
 -------
 # mkdir /ceph
 # git clone https://github.com/ceph/ceph-ansible -b stable-3.1 /ceph/ceph-ansible/
@@ -41,19 +47,22 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 # echo "control_path = /dev/shm/cp%%h-%%p-%%r" >> ansible.cfg
 # ansible-playbook -i /etc/kolla/inventory/ceph site.yml
 -------
-8. Download Ceph config file and client keys for services utilising Ceph:
-
++
+* Download Ceph config file and client keys for services utilising Ceph:
++
 -------
 # ansible-playbook -i /etc/kolla/inventory/ceph /etc/kolla/playbooks/fetch_ceph_config_and_keys.yml
 -------
-9. Deploy Kolla with Kolla-Ansible:
-
++
+* Deploy Kolla with Kolla-Ansible:
++
 -------
 # cd /kolla/kolla-ansible/tools/
 # ./kolla-ansible -i /etc/kolla/inventory/vkolla deploy
 -------
-10. Post deploy, testing, etc.
-
++
+* Post deploy, testing, etc.
++
 -------
 # ./kolla-ansible -i /etc/kolla/inventory/vkolla post-deploy
 # source /etc/kolla/admin-openrc.sh
