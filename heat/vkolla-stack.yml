@@ -442,6 +442,9 @@ resources:
             - { get_resource: ceph_control_daemons }
             # Below only needed because of the rule allowing SSH from bastion
             - { get_resource: os_services_api_client }
+            # Needed for Galera members to communicate
+            # TODO: Consider creating a separate rule for Galera
+            - { get_resource: os_services_infra_client }
           networks:
             - network: { get_resource: main_net }
             - network: { get_resource: tunnel_net }
