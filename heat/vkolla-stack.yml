@@ -592,6 +592,7 @@ resources:
         - subnet: { get_resource: main_net_subnet }
       security_groups:
         - { get_resource: bastion_sg }
+        - { get_resource: os_services_api_client }
 
   bastion_fip:
     type: OS::Neutron::FloatingIP
