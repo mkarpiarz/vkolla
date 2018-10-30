@@ -34,7 +34,11 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 7. Deploy Ceph with `ceph-ansible`:
 
 -------
+# mkdir /ceph
+# git clone https://github.com/ceph/ceph-ansible -b stable-3.1 /ceph/ceph-ansible/
 # cd /ceph/ceph-ansible/
+# cp site.yml.sample site.yml
+# echo "control_path = /dev/shm/cp%%h-%%p-%%r" >> ansible.cfg
 # ansible-playbook -i /etc/kolla/inventory/ceph site.yml
 -------
 8. Download Ceph config file and client keys for services utilising Ceph:
