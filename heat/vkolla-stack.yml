@@ -564,9 +564,9 @@ resources:
           template: |
             #!/bin/sh
             apt-get update
-            sudo apt-get install python-pip
+            apt-get install -y python-pip
             pip install python-openstackclient
-            cat << EOF > ~/admin-openrc.sh
+            cat << EOF > /home/ubuntu/admin-openrc.sh
             #!/usr/bin/env bash
             export OS_PROJECT_DOMAIN_NAME=Default
             export OS_USER_DOMAIN_NAME=Default
