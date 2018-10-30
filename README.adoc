@@ -185,4 +185,4 @@ Currently, nothing is taking care of opening ports for services enabled this way
 
 == Known issues
 
-* Tasks like "Running Neutron bootstrap container" can run for a long time. If this time is longer than SSH connection timeout for deployment hosts, the whole deployment will fail. The bootstrap process will still continue, so playbooks can be safely rerun it's done. TODO: Increase this timeout?
+* Tasks like "Running Neutron bootstrap container" can run for a long time. If this time is longer than SSH connection timeout for deployment hosts, the whole deployment will fail. The bootstrap process will still continue, so deployment playbooks can be safely rerun when this is done. TODO: Increase this timeout?
