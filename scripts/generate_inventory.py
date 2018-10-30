@@ -107,7 +107,7 @@ def main(argv):
 
     print('== INVENTORY ==')
     for (group_name, servers) in groupings.items():
-        print('[' + group_name + ']')
+        sys.stdout.write('[' + group_name + ']\n')
         inv_out.write('[' + group_name + ']\n')
         for server in servers:
             try:
@@ -128,14 +128,14 @@ def main(argv):
                 line = '{} ansible_host={} ' \
                        'ansible_user=ubuntu ansible_become=yes\n' \
                        .format(server.name, ip)
-                print(line)
+                sys.stdout.write(line)
                 inv_out.write(line)
             except Exception as e:
                 print('WARNING: Got exception: {}. Skipping {}'
                       .format(e, server.name))
                 pass
         # empty line after each grouping
-        print('')
+        sys.stdout.write('\n')
         inv_out.write('\n')
     inv_out.close()
 
