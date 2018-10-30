@@ -60,6 +60,21 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 # /etc/kolla/scripts/populate_dev_cloud.sh
 -------
 
+=== Client instance
+Deployment stack also creates a small client instance that can access deployment through the external VIP and has openstack CLI tools installed.
+
+To use this client, you'll also need admin password, so get it by running this command on the deployment container:
+
+-------
+# grep keystone_admin /etc/kolla/passwords.yml
+-------
+Next, find the IP of the `test_client` instance and log into it (as `ubuntu` user). When inside, source environment variables from this openrc file:
+
+-------
+$ source admin-openrc.sh
+-------
+Run some openstack client commands -- like `openstack image list`, `nova list` -- to confirm this works as expected.
+
 == Custom overrides
 To enable a service that's not part of the current config, first add groupings for this service (as a new file) in the inventory:
 
