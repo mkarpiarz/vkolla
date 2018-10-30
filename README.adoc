@@ -35,7 +35,19 @@ docker run -dit --name kolla-deploy \
 -------
 where `<VPN-conf-dir>` is host a directory where VPN client config and keys for accessing private networks will be downloaded (doesn't need to exist).
 +
-* Spin up the Heat stack with all the instances. Wait for it to complete creating all resources.
+* Log into the container:
++
+-------
+$ docker exec -it kolla-deploy /bin/bash
+-------
++
+* Spin up Heat stack with all the resources:
++
+-------
+# cd /etc/kolla/heat/
+# openstack stack create --template vkolla-stack.yml --parameter key=<your-keypair-name> vkolla --wait
+-------
++
 * Generate inventory hosts.
 +
 -------
