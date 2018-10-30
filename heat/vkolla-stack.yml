@@ -634,6 +634,17 @@ resources:
       floating_network: { get_param: external_network }
       port_id: { get_resource: bastion_fip_port }
 
+  # This port is needed because Heat doesn't allow to assign sec groups
+  # to instances with a port already attached.
+  # TODO: Find a better way of doing this.
+  bastion_vip_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: vip_net }
+      security_groups:
+        - { get_resource: bastion_sg }
+        - { get_resource: os_services_api_client }
+
   bastion_instance:
     type: OS::Nova::Server
     properties:
@@ -643,7 +654,7 @@ resources:
       key_name: { get_param: key }
       networks:
         - port: { get_resource: bastion_fip_port }
-        - network: { get_resource: vip_net }
+        - port: { get_resource: bastion_vip_port }
       user_data_format: RAW
       user_data:
         str_replace:
