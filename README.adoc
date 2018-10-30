@@ -172,3 +172,7 @@ Finally, rerun `deploy` playbooks with your overrides as extra vars (use tags to
 # cd /kolla/kolla-ansible/tools/
 # ./kolla-ansible -i /etc/kolla/inventory/vkolla deploy -e @/etc/kolla/globals_heat.yml --tags haproxy,heat
 -------
+
+== Known issues
+
+* Tasks like "Running Neutron bootstrap container" can run for a long time. If this time is longer than SSH connection timeout for deployment hosts, the whole deployment will fail. The bootstrap process will still continue, so playbooks can be safely rerun it's done. TODO: Increase this timeout?
