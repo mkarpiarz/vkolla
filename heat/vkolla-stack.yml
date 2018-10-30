@@ -510,7 +510,7 @@ resources:
   storage_instances:
     type: OS::Heat::ResourceGroup
     properties:
-      count: 1
+      count: 2
       resource_def:
         type: OS::Nova::Server
         properties:
