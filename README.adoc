@@ -1,9 +1,39 @@
 == Manual steps
 Following manual steps need to be performed before deploying OpenStack on the platform:
 
-* Build deployment containers.
+* Clone prerequisites:
+-------
+$ mkdir reqs
+$ cd reqs/
+$ git clone https://github.com/mkarpiarz/vkolla-deploy
+$ cd vkolla-deploy/
+$ git checkout 7d55ae2d7aa4989e9a7c6b6b37a654c74a930d56
+$ cd ..
+$ git clone https://github.com/mkarpiarz/vpn-deploy
+$ cd vpn-deploy/
+$ git checkout c77e40838e5eabaf5b4353a5f757e820e6a22025
+$ cd -
+$ git clone https://github.com/ceph/ceph-ansible -b stable-3.1
+-------
+
+* On a machine with Docker (laptop, server) build a deployment container image using repo in `reqs/vkolla-deploy/`.
+Tested build-args:
+** `K_BRANCH="stable/queens"`
+** `KA_BRANCH="stable/queens"`
+** `ANSIBLE_VERSION=2.4`
 +
-TODO: Add commands for starting deployment containers with all necessary volumes mounted.
+* Run the deployment container:
++
+-------
+docker run -dit --name kolla-deploy \
+    -v $(pwd):/etc/kolla/ \
+    -v $(pwd)/reqs/ceph-ansible/:/ceph/ceph-ansible/ \
+    -v $(pwd)/reqs/vpn-deploy/:/vpn-deploy/ \
+    -v <VPN-conf-dir>:/root/VPN/ \
+    kolla-deploy:latest \
+    /bin/bash
+-------
+where `<VPN-conf-dir>` is host a directory where VPN client config and keys for accessing private networks will be downloaded (doesn't need to exist).
 +
 * Spin up the Heat stack with all the instances. Wait for it to complete creating all resources.
 * Generate inventory hosts.
@@ -15,7 +45,7 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 * Log into the VPN deployment container and install OpenVPN on the bastion host:
 +
 -------
-# cd ~/vpn-deploy/
+# cd /vpn-deploy/
 # ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get update; apt-get -y install python-dev"
 # ansible-playbook -i /etc/kolla/inventory/vkolla vpn-deploy.yml -e 'target=bastions'
 -------
@@ -40,8 +70,6 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 * Deploy Ceph with `ceph-ansible`:
 +
 -------
-# mkdir /ceph
-# git clone https://github.com/ceph/ceph-ansible -b stable-3.1 /ceph/ceph-ansible/
 # cd /ceph/ceph-ansible/
 # cp site.yml.sample site.yml
 # echo "control_path = /dev/shm/cp%%h-%%p-%%r" >> ansible.cfg
