@@ -430,12 +430,6 @@ resources:
       router_id: { get_resource: main_router }
       subnet: { get_resource: main_net_subnet }
 
-  provider_net_interface:
-    type: OS::Neutron::RouterInterface
-    properties:
-      router_id: { get_resource: main_router }
-      subnet: { get_resource: provider_net_subnet }
-
   control_instances:
     type: OS::Heat::ResourceGroup
     properties:
@@ -554,6 +548,12 @@ resources:
     properties:
       router_id: { get_resource: client_router }
       subnet: { get_resource: vip_net_subnet }
+
+  provider_net_client_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: client_router }
+      subnet: { get_resource: provider_net_subnet }
 
   test_client:
     type: OS::Nova::Server
