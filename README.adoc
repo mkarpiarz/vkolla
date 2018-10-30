@@ -69,6 +69,11 @@ TODO: Add commands for starting deployment containers with all necessary volumes
 # /etc/kolla/scripts/populate_dev_cloud.sh
 -------
 
+[NOTE]
+=======
+To route traffic in and out instances launched on this platform (this includes communicating with them through their floating IPs), port security must be disabled on ports in the network serving as provider network on the underlying cloud platform. Currently this is a manual process that can be done in Horizon by first removing all security groups from all named ports in the `provider_net` network and then unchecking the "Port Security" checkbox.
+=======
+
 === Client instance
 Deployment stack also creates a small client instance that can access deployment through the external VIP and has openstack CLI tools installed.
 

@@ -463,6 +463,7 @@ resources:
             groups: control
 
   # TODO: Allow access to HAProxy stats.
+  # TODO: Find a way to disable port security on provider network ports
   network_instances:
     type: OS::Heat::ResourceGroup
     properties:
@@ -487,9 +488,6 @@ resources:
                 - ip_address: { get_param: internal_vip }
             - network: { get_resource: tunnel_net }
             - subnet: { get_resource: provider_net_subnet }
-              port_extra_properties:
-                allowed_address_pairs:
-                - ip_address: { get_param: provider_net_cidr }
             - subnet: { get_resource: vip_net_subnet }
               port_extra_properties:
                 allowed_address_pairs:
