@@ -54,11 +54,16 @@ $ docker exec -it kolla-deploy /bin/bash
 # /etc/kolla/scripts/generate_inventory.py /etc/kolla/inventory/vkolla/01_hosts
 -------
 +
-* Log into the VPN deployment container and install OpenVPN on the bastion host:
+* Install Python on all hosts:
++
+-------
+# ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get update; apt-get -y install python-dev"
+-------
++
+* Install OpenVPN on the bastion host:
 +
 -------
 # cd /vpn-deploy/
-# ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get update; apt-get -y install python-dev"
 # ansible-playbook -i /etc/kolla/inventory/vkolla vpn-deploy.yml -e 'target=bastions'
 -------
 +
