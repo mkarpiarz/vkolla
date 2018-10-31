@@ -183,6 +183,12 @@ Finally, rerun `deploy` playbooks with your overrides as extra vars (use tags to
 Currently, nothing is taking care of opening ports for services enabled this way, so appropriate security group rules need to be added separately.
 =======
 
+[WARNING]
+=======
+The default control node flavour with 4GB of RAM is just enough for essential services (infra + Keystone + Glance + Nova + Neutron) -- adding any more may result in those instances going OOM which in turn can lead to database containers crushing. Use flavours with more RAM if you plan on enabling extra services.
+Run `./kolla-ansible` with `mariadb_recovery` to fix the database if it happened to break.
+=======
+
 == Known issues
 
 * Tasks like "Running Neutron bootstrap container" can run for a long time. If this time is longer than SSH connection timeout for deployment hosts, the whole deployment will fail. The bootstrap process will still continue, so deployment playbooks can be safely rerun when this is done. TODO: Increase this timeout?
