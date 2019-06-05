@@ -478,13 +478,13 @@ resources:
             - subnet: { get_resource: main_net_subnet }
               port_extra_properties:
                 allowed_address_pairs:
-                - ip_address: { get_param: internal_vip }
+                - ip_address: { list_join: ['/', [{ get_param: internal_vip }, '32']] }
             - network: { get_resource: tunnel_net }
             - subnet: { get_resource: provider_net_subnet }
             - subnet: { get_resource: vip_net_subnet }
               port_extra_properties:
                 allowed_address_pairs:
-                - ip_address: { get_param: external_vip }
+                - ip_address: { list_join: ['/', [{ get_param: external_vip }, '32']] }
           metadata:
             groups: network
 
