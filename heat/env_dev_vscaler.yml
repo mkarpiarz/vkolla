@@ -6,3 +6,7 @@ parameters:
   vip_net_cidr: 192.168.10.0/24
   internal_vip: 192.168.1.254
   external_vip: 192.168.10.254
+  #num_control_nodes: 3
+  #num_network_nodes: 2
+  #num_compute_nodes: 1
+  #num_storage_nodes: 2
