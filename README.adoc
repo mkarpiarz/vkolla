@@ -11,7 +11,7 @@ $ git checkout 7d55ae2d7aa4989e9a7c6b6b37a654c74a930d56
 $ cd ..
 $ git clone https://github.com/mkarpiarz/vpn-deploy
 $ cd vpn-deploy/
-$ git checkout c77e40838e5eabaf5b4353a5f757e820e6a22025
+$ git checkout 268948d4de1353b6c81aefce20e48f417846866a
 $ cd -
 $ git clone https://github.com/ceph/ceph-ansible -b stable-3.1
 -------
@@ -94,6 +94,11 @@ If you want to override default parameters of this Heat stack template, you can 
 # ansible-galaxy install -r requirements.yml
 # ansible-playbook -i /etc/kolla/inventory/vkolla vpn-deploy.yml -e 'target=bastions'
 -------
++
+[NOTE]
+=======
+By default this playbook sets up OpenVPN so that all your traffic goes through the tunnel. If this is not what you want, add `-e 'openvpn_redirect_gateway=false'` to the last command. If you're doing this, remember to add (on your client host) a static route so that traffic directed to internal networks of the deployment goes though the tunnel device, for example: `ip route add 192.168.17.0/24 dev tun0`.
+=======
 +
 * From now on private IPs of instances will be used, so add fetched client config and keys (available in the `/root/VPN/` directory inside the container or in the respective hostdir) to your VPN client (openvpn, Tunnelblick, Viscosity, ...) and activate the tunnel.
 +
