@@ -16,20 +16,29 @@ $ cd -
 $ git clone https://github.com/ceph/ceph-ansible -b stable-3.1
 -------
 
-* On a machine with Docker (laptop, server) build a deployment container image using repo in `reqs/vkolla-deploy/`.
-Tested build-args:
+* On a machine with Docker (laptop, server) build a deployment container image using the Dockerfile in `reqs/vkolla-deploy/` repo by running the following commands:
++
+-------
+$ cd reqs/vkolla-deploy/
+$ docker build . \
+    --build-arg K_BRANCH=${K_BRANCH} \
+    --build-arg KA_BRANCH=${KA_BRANCH} \
+    --build-arg ANSIBLE_VERSION=${ANSIBLE_VERSION} \
+    -t kolla-deploy:latest
+-------
+where build-args can be set to the following (tested) values:
 +
 *OPENSTACK TRAIN:*
 +
-** `K_BRANCH="stable/train"`
-** `KA_BRANCH="stable/train"`
-** `ANSIBLE_VERSION=2.8.7`
+** `export K_BRANCH="stable/train"`
+** `export KA_BRANCH="stable/train"`
+** `export ANSIBLE_VERSION=2.8.7`
 +
 *(old) OPENSTACK QUEENS:*
 +
-** `K_BRANCH="stable/queens"`
-** `KA_BRANCH="stable/queens"`
-** `ANSIBLE_VERSION=2.4`
+** `export K_BRANCH="stable/queens"`
+** `export KA_BRANCH="stable/queens"`
+** `export ANSIBLE_VERSION=2.4`
 +
 * Run the deployment container:
 +
