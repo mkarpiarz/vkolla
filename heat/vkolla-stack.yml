@@ -529,6 +529,7 @@ resources:
           metadata:
             groups: external-compute
 
+  # TODO: Find out why this user data script doesn't get transferred to the instance
   storage_instances:
     type: OS::Heat::ResourceGroup
     properties:
@@ -629,6 +630,12 @@ resources:
         port_range_min: 1194
         port_range_max: 1194
         protocol: udp
+        remote_mode: remote_ip_prefix
+        remote_ip_prefix: 0.0.0.0/0
+      - direction: ingress
+        port_range_min: 443
+        port_range_max: 443
+        protocol: tcp
         remote_mode: remote_ip_prefix
         remote_ip_prefix: 0.0.0.0/0
 
