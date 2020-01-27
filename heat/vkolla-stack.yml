@@ -631,6 +631,12 @@ resources:
         protocol: udp
         remote_mode: remote_ip_prefix
         remote_ip_prefix: 0.0.0.0/0
+      - direction: ingress
+        port_range_min: 443
+        port_range_max: 443
+        protocol: tcp
+        remote_mode: remote_ip_prefix
+        remote_ip_prefix: 0.0.0.0/0
 
   # SSH into API clients from bastion
   # TODO: Create a dedicated group only for this rule
