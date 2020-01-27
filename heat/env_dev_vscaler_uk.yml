@@ -1,0 +1,20 @@
+parameters:
+  image: Ubuntu-16.04
+  key: mykey
+  control_flavour: m1.large
+  network_flavour: m1.small
+  compute_flavour: m1.medium
+  storage_flavour: m1.small
+  client_flavour: m1.small
+  bastion_flavour: m1.small
+  external_network: ext-net
+  main_net_cidr: 192.168.17.0/24
+  tunnel_net_cidr: 172.16.0.0/24
+  provider_net_cidr: 172.18.0.0/24
+  vip_net_cidr: 10.10.10.0/24
+  internal_vip: 192.168.17.254
+  external_vip: 10.10.10.254
+  num_control_nodes: 1
+  num_network_nodes: 1
+  num_compute_nodes: 2
+  num_storage_nodes: 1
