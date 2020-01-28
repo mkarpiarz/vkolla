@@ -529,6 +529,7 @@ resources:
           metadata:
             groups: external-compute
 
+  # TODO: Find out why this user data script doesn't get transferred to the instance
   storage_instances:
     type: OS::Heat::ResourceGroup
     properties:

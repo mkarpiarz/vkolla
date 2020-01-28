@@ -259,3 +259,4 @@ Run `./kolla-ansible` with `mariadb_recovery` to fix the database if it happened
 == Known issues
 
 * Tasks like "Running Neutron bootstrap container" can run for a long time. If this time is longer than SSH connection timeout for deployment hosts, the whole deployment will fail. The bootstrap process will still continue, so deployment playbooks can be safely rerun when this is done. TODO: Increase this timeout?
+* With only one storage instance the user data script setting up the loopback device doesn't get transferred to the instance. The root cause of this problem is unknown.
