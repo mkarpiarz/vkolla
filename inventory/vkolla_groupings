@@ -23,6 +23,8 @@ control
 [haproxy:children]
 network
 
+[redis:children]
+
 [keystone:children]
 control
 
@@ -63,6 +65,10 @@ neutron
 
 [neutron-bgp-dragent:children]
 
+[neutron-infoblox-ipam-agent:children]
+[neutron-metering-agent:children]
+[ironic-neutron-agent:children]
+
 [nova:children]
 control
 
@@ -70,6 +76,9 @@ control
 nova
 
 [nova-conductor:children]
+nova
+
+[nova-super-conductor:children]
 nova
 
 [nova-consoleauth:children]
