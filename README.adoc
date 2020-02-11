@@ -7,7 +7,7 @@ $ mkdir reqs
 $ cd reqs/
 $ git clone https://github.com/mkarpiarz/vkolla-deploy
 $ cd vkolla-deploy/
-$ git checkout 7d55ae2d7aa4989e9a7c6b6b37a654c74a930d56
+$ git checkout 7dab3f29bd3ba1646c00db3e7d42bac40c93bd51
 $ cd ..
 $ git clone https://github.com/mkarpiarz/vpn-deploy
 $ cd vpn-deploy/
@@ -162,21 +162,19 @@ By default this playbook sets up OpenVPN so that all your traffic goes through t
 * Bootstrap servers to install prerequisites, create config directories, etc.
 +
 -------
-# cd /kolla/kolla-ansible/tools/
-# ./kolla-ansible -i /etc/kolla/inventory/vkolla bootstrap-servers
+# kolla-ansible -i /etc/kolla/inventory/vkolla bootstrap-servers
 -------
 +
 * Deploy Kolla with Kolla-Ansible:
 +
 -------
-# cd /kolla/kolla-ansible/tools/
-# ./kolla-ansible -i /etc/kolla/inventory/vkolla deploy
+# kolla-ansible -i /etc/kolla/inventory/vkolla deploy
 -------
 +
 * Post deploy, testing, etc.
 +
 -------
-# ./kolla-ansible -i /etc/kolla/inventory/vkolla post-deploy
+# kolla-ansible -i /etc/kolla/inventory/vkolla post-deploy
 # source /etc/kolla/admin-openrc.sh
 # /etc/kolla/scripts/populate_dev_cloud.sh
 -------
@@ -233,8 +231,7 @@ enable_heat: "yes"
 Finally, rerun `deploy` playbooks with your overrides as extra vars (use tags to speed up the process if the platform has already been deployed):
 
 -------
-# cd /kolla/kolla-ansible/tools/
-# ./kolla-ansible -i /etc/kolla/inventory/vkolla deploy -e @/etc/kolla/globals_heat.yml --tags haproxy,heat
+# kolla-ansible -i /etc/kolla/inventory/vkolla deploy -e @/etc/kolla/globals_heat.yml --tags haproxy,heat
 -------
 
 If you want to deploy the service to only a subset of nodes within a group or across multiple groups, then instead of adding groupings to the inventory, add them to the `groups` metadata tag. For example with this metadata:
@@ -253,7 +250,7 @@ Currently, nothing is taking care of opening ports for services enabled this way
 [WARNING]
 =======
 The default control node flavour with 4GB of RAM is just enough for essential services (infra + Keystone + Glance + Nova + Neutron) -- adding any more may result in those instances going OOM which in turn can lead to database containers crushing. Use flavours with more RAM if you plan on enabling extra services.
-Run `./kolla-ansible` with `mariadb_recovery` to fix the database if it happened to break.
+Run `kolla-ansible` with `mariadb_recovery` to fix the database if it happened to break.
 =======
 
 == Known issues
