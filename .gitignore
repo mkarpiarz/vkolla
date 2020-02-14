@@ -1,0 +1,12 @@
+*.swp
+*.tmp
+*.old
+*.bak
+*.retry
+.DS_Store
+*.pdf
+*.rtf
+admin-openrc.sh
+passwords.yml
+*.keyring
+config/*/ceph.conf
