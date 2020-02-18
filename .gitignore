@@ -10,3 +10,4 @@ admin-openrc.sh
 passwords.yml
 *.keyring
 config/*/ceph.conf
+*01_hosts
