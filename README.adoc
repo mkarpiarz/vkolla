@@ -120,6 +120,12 @@ By default this playbook sets up OpenVPN so that all your traffic goes through t
 +
 * From now on private IPs of instances will be used, so add fetched client config and keys (available in the `/root/VPN/` directory inside the container or in the respective hostdir) to your VPN client (openvpn, Tunnelblick, Viscosity, ...) and activate the tunnel.
 +
+* (Optional) Stop unattended-upgrades so they don't get in the way of playbooks:
++
+-------
+# ansible -i /etc/kolla/inventory/vkolla all -m raw -a "apt-get remove unattended-upgrades -y"
+-------
++
 * Install Python on all hosts:
 +
 -------
