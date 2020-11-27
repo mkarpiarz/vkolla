@@ -68,7 +68,11 @@ def main(argv):
         if metadata:
             try:
                 for net in server.addresses.keys():
-                    networks[net] += 1
+                    # When looking for the most common network, only consider
+                    # ones to which instances with the group_tag are attached
+                    if group_tag in metadata:
+                        networks[net] += 1
+
                     # Detect servers with floating IPs
                     for interface in server.addresses.get(net):
                         if (interface.get('OS-EXT-IPS:type') == 'floating'):
