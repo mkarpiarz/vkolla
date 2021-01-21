@@ -19,7 +19,7 @@
 
 # Valid option is Docker repository tag
 #openstack_release: ""
-openstack_release: "train"
+openstack_release: "ussuri"
 
 # Location of configuration overrides
 #node_custom_config: "/etc/kolla/config"

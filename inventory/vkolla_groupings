@@ -69,6 +69,10 @@ neutron
 [neutron-metering-agent:children]
 [ironic-neutron-agent:children]
 
+[neutron-ovn-metadata-agent:children]
+[ovn-nb-db:children]
+[ovn-sb-db:children]
+
 [nova:children]
 control
 
