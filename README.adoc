@@ -28,7 +28,13 @@ $ docker build . \
 -------
 where build-args can be set to the following (tested) values:
 +
-*OPENSTACK TRAIN:*
+*OPENSTACK USSURI:*
++
+** `export K_BRANCH="stable/ussuri"`
+** `export KA_BRANCH="stable/ussuri"`
+** `export ANSIBLE_VERSION=2.8.17`
++
+*(old) OPENSTACK TRAIN:*
 +
 ** `export K_BRANCH="stable/train"`
 ** `export KA_BRANCH="stable/train"`
