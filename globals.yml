@@ -456,3 +456,8 @@ tempest_floating_network_name:
 #xenserver_himn_ip:
 #xenserver_username:
 #xenserver_connect_protocol:
+
+# Use the Ubuntu Bionic image for the Neuron OVS agent as there are problems with
+# iptables-restore when using the latest CentOS 8 images.
+# TODO: Revisit this at some point in the future.
+neutron_openvswitch_agent_image: "kolla/ubuntu-binary-neutron-openvswitch-agent"
