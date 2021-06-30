@@ -28,7 +28,13 @@ $ docker build . \
 -------
 where build-args can be set to the following (tested) values:
 +
-*OPENSTACK USSURI:*
+*OPENSTACK VICTORIA:*
++
+** `export K_BRANCH="stable/victoria"`
+** `export KA_BRANCH="stable/victoria"`
+** `export ANSIBLE_VERSION=2.9.17`
++
+*(old) OPENSTACK USSURI:*
 +
 ** `export K_BRANCH="stable/ussuri"`
 ** `export KA_BRANCH="stable/ussuri"`
