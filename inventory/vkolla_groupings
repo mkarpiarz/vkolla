@@ -11,6 +11,12 @@ storage
 [bifrost:children]
 deployment
 
+[kolla-toolbox:children]
+control
+
+[kolla-logs:children]
+control
+
 [rabbitmq:children]
 control
 
